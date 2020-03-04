@@ -1,0 +1,552 @@
+{
+  "contractName": "Post",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.5.16+commit.9c3226ce\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"methods\":{}},\"userdoc\":{\"methods\":{}}},\"settings\":{\"compilationTarget\":{\"/home/arpit/Desktop/github_repos/Dconnect/contracts/Post.sol\":\"Post\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/arpit/Desktop/github_repos/Dconnect/contracts/Post.sol\":{\"keccak256\":\"0xf27fb96c8c884ed8709da4e8b4115376d6562755aa3449ae642540e9f34ea679\",\"urls\":[\"bzz-raw://e6edfbdfbd85d578a94af0b9c3c2de0d6fb6a7b18144ebb28993c8d3681517b9\",\"dweb:/ipfs/QmYq4My2hYgLgkCt4CDF2a83Z6RKgfckVb8n1qBfY3WLAg\"]}},\"version\":1}",
+  "bytecode": "0x6080604052348015600f57600080fd5b50603e80601d6000396000f3fe6080604052600080fdfea265627a7a7231582071a225d59b96e6371df3939af3b824ec081c36e55809447c9dc67bc0053d687864736f6c63430005100032",
+  "deployedBytecode": "0x6080604052600080fdfea265627a7a7231582071a225d59b96e6371df3939af3b824ec081c36e55809447c9dc67bc0053d687864736f6c63430005100032",
+  "sourceMap": "34:318:1:-;;;;8:9:-1;5:2;;;30:1;27;20:12;5:2;34:318:1;;;;;;;",
+  "deployedSourceMap": "34:318:1:-;;;;;",
+  "source": "pragma solidity >=0.4.21 <0.7.0;\n\ncontract Post {\n\n    struct postS {\n        address owner;\n        address postid;\n        string Title;\n        bytes32 PostText;\n        bytes32 PostPic;\n        uint256 Date;\n    }\n\n    // mapping(bytes32 => bytes32) texttopic;\n    mapping(address => postS) postsM;\n    // mapping(address => address) posttouser;\n\n}",
+  "sourcePath": "/home/arpit/Desktop/github_repos/Dconnect/contracts/Post.sol",
+  "ast": {
+    "absolutePath": "/home/arpit/Desktop/github_repos/Dconnect/contracts/Post.sol",
+    "exportedSymbols": {
+      "Post": [
+        76
+      ]
+    },
+    "id": 77,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 58,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.4",
+          ".21",
+          "<",
+          "0.7",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:32:1"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 76,
+        "linearizedBaseContracts": [
+          76
+        ],
+        "name": "Post",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "Post.postS",
+            "id": 71,
+            "members": [
+              {
+                "constant": false,
+                "id": 60,
+                "name": "owner",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "78:13:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 59,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "78:7:1",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 62,
+                "name": "postid",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "101:14:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 61,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "101:7:1",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 64,
+                "name": "Title",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "125:12:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 63,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "125:6:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 66,
+                "name": "PostText",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "147:16:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                },
+                "typeName": {
+                  "id": 65,
+                  "name": "bytes32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "147:7:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 68,
+                "name": "PostPic",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "173:15:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                },
+                "typeName": {
+                  "id": 67,
+                  "name": "bytes32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "173:7:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 70,
+                "name": "Date",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "198:12:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 69,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "198:7:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "postS",
+            "nodeType": "StructDefinition",
+            "scope": 76,
+            "src": "55:162:1",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 75,
+            "name": "postsM",
+            "nodeType": "VariableDeclaration",
+            "scope": 76,
+            "src": "269:32:1",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_address_$_t_struct$_postS_$71_storage_$",
+              "typeString": "mapping(address => struct Post.postS)"
+            },
+            "typeName": {
+              "id": 74,
+              "keyType": {
+                "id": 72,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "277:7:1",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "269:25:1",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_address_$_t_struct$_postS_$71_storage_$",
+                "typeString": "mapping(address => struct Post.postS)"
+              },
+              "valueType": {
+                "contractScope": null,
+                "id": 73,
+                "name": "postS",
+                "nodeType": "UserDefinedTypeName",
+                "referencedDeclaration": 71,
+                "src": "288:5:1",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_postS_$71_storage_ptr",
+                  "typeString": "struct Post.postS"
+                }
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 77,
+        "src": "34:318:1"
+      }
+    ],
+    "src": "0:352:1"
+  },
+  "legacyAST": {
+    "absolutePath": "/home/arpit/Desktop/github_repos/Dconnect/contracts/Post.sol",
+    "exportedSymbols": {
+      "Post": [
+        76
+      ]
+    },
+    "id": 77,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 58,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.4",
+          ".21",
+          "<",
+          "0.7",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:32:1"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 76,
+        "linearizedBaseContracts": [
+          76
+        ],
+        "name": "Post",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "Post.postS",
+            "id": 71,
+            "members": [
+              {
+                "constant": false,
+                "id": 60,
+                "name": "owner",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "78:13:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 59,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "78:7:1",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 62,
+                "name": "postid",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "101:14:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                },
+                "typeName": {
+                  "id": 61,
+                  "name": "address",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "101:7:1",
+                  "stateMutability": "nonpayable",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 64,
+                "name": "Title",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "125:12:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 63,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "125:6:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 66,
+                "name": "PostText",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "147:16:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                },
+                "typeName": {
+                  "id": 65,
+                  "name": "bytes32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "147:7:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 68,
+                "name": "PostPic",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "173:15:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bytes32",
+                  "typeString": "bytes32"
+                },
+                "typeName": {
+                  "id": 67,
+                  "name": "bytes32",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "173:7:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 70,
+                "name": "Date",
+                "nodeType": "VariableDeclaration",
+                "scope": 71,
+                "src": "198:12:1",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 69,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "198:7:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "postS",
+            "nodeType": "StructDefinition",
+            "scope": 76,
+            "src": "55:162:1",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 75,
+            "name": "postsM",
+            "nodeType": "VariableDeclaration",
+            "scope": 76,
+            "src": "269:32:1",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_mapping$_t_address_$_t_struct$_postS_$71_storage_$",
+              "typeString": "mapping(address => struct Post.postS)"
+            },
+            "typeName": {
+              "id": 74,
+              "keyType": {
+                "id": 72,
+                "name": "address",
+                "nodeType": "ElementaryTypeName",
+                "src": "277:7:1",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_address",
+                  "typeString": "address"
+                }
+              },
+              "nodeType": "Mapping",
+              "src": "269:25:1",
+              "typeDescriptions": {
+                "typeIdentifier": "t_mapping$_t_address_$_t_struct$_postS_$71_storage_$",
+                "typeString": "mapping(address => struct Post.postS)"
+              },
+              "valueType": {
+                "contractScope": null,
+                "id": 73,
+                "name": "postS",
+                "nodeType": "UserDefinedTypeName",
+                "referencedDeclaration": 71,
+                "src": "288:5:1",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_struct$_postS_$71_storage_ptr",
+                  "typeString": "struct Post.postS"
+                }
+              }
+            },
+            "value": null,
+            "visibility": "internal"
+          }
+        ],
+        "scope": 77,
+        "src": "34:318:1"
+      }
+    ],
+    "src": "0:352:1"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.5.16+commit.9c3226ce.Emscripten.clang"
+  },
+  "networks": {
+    "5777": {
+      "events": {},
+      "links": {},
+      "address": "0x32aDF41054668C34C8dD9f3D435e624373Ec2eA4",
+      "transactionHash": "0xaed7e83ac79139f0a5e9ef7473d60e57a323c2a52aed0b85451b0ded068613b2"
+    }
+  },
+  "schemaVersion": "3.0.23",
+  "updatedAt": "2020-03-04T05:40:16.027Z",
+  "networkType": "ethereum",
+  "devdoc": {
+    "methods": {}
+  },
+  "userdoc": {
+    "methods": {}
+  }
+}
