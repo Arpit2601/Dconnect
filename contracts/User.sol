@@ -33,7 +33,7 @@ contract User {
         return (u.Name, u.Age, u.Gender, u.Posts, u.Followers, u.Following);
     }
 
-    function registerUser(string memory _name, uint8 _age, string memory _gender) public {
+    function registerUser(string memory _name, uint8 _age, string memory _gender) public returns (bool){
         userS memory u = usersM[msg.sender];
         bytes memory testname = bytes(_name);
         bytes memory testgender = bytes(_gender);
@@ -42,7 +42,7 @@ contract User {
         require(testgender.length != 0, "Please enter gender");
         require(!(u.userid>address(0x0)), "User already present");
         usersM[msg.sender] = userS({Name:_name, Age:_age, Gender:_gender, userid:msg.sender,Posts:new address[](0), Followers:new address[](0), Following:new address[](0), Isuser:true});
-        // return true;
+        return true;
     }
 
     function userpresent(string memory _address) public view returns (bool){
