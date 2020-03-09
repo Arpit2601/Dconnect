@@ -12,21 +12,21 @@ contract User {
         // string address_string;
         // bytes32 ProfilePic; // Hash of profilepic
         address[] Posts;
-        address[] Followers;    // Users who are following this user
-        address[] Following;    // The user is following
+        uint[] Followers;    // Users who are following this user
+        uint[] Following;    // This user is following
         bool Isuser;
     }
 
     //Mappings are useful for O(1) searching 
     mapping(uint => userS) public usersM;
-    mapping(address => mapping(address => int)) public followM; // Check if address1 follows address2
+    mapping(uint => mapping(uint => int)) public followM; // Check if address1 follows address2
 
     // array containing addresses of all the users as you cannot iterate over the mapping
     address[] usersA;
     // total_users is the total count of users
     uint public total_users;
 
-    function getusersAAt(uint idx) public returns(address){ 
+    function getusersAAt(uint idx) public view returns(address){ 
         return usersA[idx];
     }
 
@@ -38,7 +38,7 @@ contract User {
     }
 
 
-    function getUserInfo(uint idx) public returns (string memory, uint8, string memory, uint, address[] memory, address[] memory, address[] memory){
+    function getUserInfo(uint idx) public view returns (string memory, uint8, string memory, uint, address[] memory, uint[] memory, uint[] memory){
         // address temp_address = usersA[idx];
         userS memory u = usersM[idx];
         return (u.Name, u.Age, u.Gender,u.index, u.Posts, u.Followers, u.Following);
@@ -55,7 +55,7 @@ contract User {
         require(testgender.length != 0, "Please enter gender");
         // require(!userpresent(), "User already present");
         // string memory address_string = AddresstoString(msg.sender);
-        usersM[total_users] = (userS({Name:_name, Age:_age, Gender:_gender,index:total_users, userid:msg.sender,Posts:new address[](0), Followers:new address[](0), Following:new address[](0), Isuser:true}));
+        usersM[total_users] = (userS({Name:_name, Age:_age, Gender:_gender,index:total_users, userid:msg.sender,Posts:new address[](0), Followers:new uint[](0), Following:new uint[](0), Isuser:true}));
         usersA.push(msg.sender);
         total_users++;
         return true;
@@ -78,6 +78,42 @@ contract User {
             return true;
         }
     }
+
+    function getidxFromAddress(string memory _address) public view returns (uint)
+    {
+        address add = parseAddr(_address);
+        uint idx = 0;
+        for(uint i = 0;i < total_users;i++)
+        {
+            if(usersA[i]==add)
+            {
+                idx = i;
+                break;
+            }
+        }
+        return idx;
+    }
+
+    function Follow(uint this_user, uint to_follow) public returns (bool)
+    {
+        // https://medium.com/coinmonks/what-the-hack-is-memory-and-storage-in-solidity-6b9e62577305
+        // If you use memory then you wont see changes so always use storage
+        // when updating contract
+        // add to_follow to this users' Following array
+        userS storage u = usersM[this_user];
+        u.Following.push(to_follow);
+        
+        // add this_user to to_follow users Followers array
+        u = usersM[to_follow];
+        u.Followers.push(this_user);
+        return true;
+
+    }
+
+    // function append(uint[] storage d, uint x) internal{
+    //     d.push(x);
+    // }
+
 
     function parseAddr(string memory _a) internal pure returns (address _parsedAddress) {
         bytes memory tmp = bytes(_a);

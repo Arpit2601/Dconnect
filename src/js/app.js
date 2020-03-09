@@ -124,9 +124,21 @@ App = {
       window.location = 'index.html';
     },
 
-    Follow: function(value){
-      // var button_value = $(this).val();
+    // TODO: Convert function to async
+    // We know current users address as App.account and the index of user (value) we want to follow
+    Follow: async function(value){
+      // first find index of current user 
+      console.log(App.account);
+      let userInstance = await App.contracts.User.deployed();
+      App.userInstance = userInstance;
+      let user_idx = await App.userInstance.getidxFromAddress(App.account);
+      console.log(user_idx);
       console.log(value);
+      let x = await App.userInstance.Follow.call(user_idx, value);
+      if(x)
+      {
+        // location.reload();
+      }
     }
 
   //   toString:function (x){
