@@ -56,18 +56,32 @@ App = {
             var Users = $('#Users');
             Users.empty();
             App.userInstance.total_users().then(function(total_users){
-              // console.log(total_users);
-              var value;
               for(var i=0;i<total_users;i++)
               {
                     App.userInstance.getUserInfo.call(i).then(function(user){
+                      // Check if current user follows this i user
+                      // console.log(user[3]);
+                      App.userInstance.CheckFollow.call(App.account, user[3]).then(function(Check) {
+                        // console.log(Check);
+                        // console.log(num);
+                        var name = user[0];
+                        var age = user[1];
+                        var gender = user[2];
+                        var value = user[3];
+                        if(Check)
+                        {
+                          var user_row = "<tr><th id = user" + value + " onclick=App.GoToUser('" + value + "') style=cursor:pointer;><u>" + name + "</u></th><td>" + age + "</td><td>" + gender + "</td><td>" + "<button class="+"btn btn-primary"+" type="+"button id='" + value +"' value='"+value +"' onclick = App.Follow('" + value + "') disabled>Following</button>" + "</td></tr>";
+                        }
+                        else
+                        {
+                          var user_row = "<tr><th id = user" + value + " onclick=App.GoToUser('" + value + "') style=cursor:pointer;><u>" + name + "</u></th><td>" + age + "</td><td>" + gender + "</td><td>" + "<button class="+"btn btn-primary"+" type="+"button id='" + value +"' value='"+value +"' onclick = App.Follow('" + value + "')>Follow</button>" + "</td></tr>";
+                          
+                        }
+                        Users.append(user_row);
+                        
+                      });
                       
-                      var name = user[0];
-                      var age = user[1];
-                      var gender = user[2];
-                      var value = user[3];
-                      var user_row = "<tr><th>" + name + "</th><td>" + age + "</td><td>" + gender + "</td><td>" + "<button class="+"btn btn-primary"+" type="+"button id='" + value +"' value='"+value +"' onclick = App.Follow('" + value + "')>Follow</button>" + "</td></tr>";
-                      Users.append(user_row);
+                      
                     });
 
               }
@@ -124,29 +138,44 @@ App = {
       window.location = 'index.html';
     },
 
-    // TODO: Convert function to async
     // We know current users address as App.account and the index of user (value) we want to follow
+    // Since Follow is storing data in contract payment has to be made
     Follow: async function(value){
       // first find index of current user 
-      console.log(App.account);
+      // console.log(App.account);
       let userInstance = await App.contracts.User.deployed();
       App.userInstance = userInstance;
       let user_idx = await App.userInstance.getidxFromAddress(App.account);
-      console.log(user_idx);
-      console.log(value);
-      let x = await App.userInstance.Follow.call(user_idx, value);
-      if(x)
+      
+      if(user_idx==value)
       {
-        // location.reload();
+        // console.log(user_idx);
+        // console.log(value);
+        alert("You cannot Follow yourself!!");
       }
+      else
+      {
+        // console.log(value);
+        let x = await App.userInstance.Follow(App.account, value);
+        if(x)
+        {
+          document.getElementById(value).innerHTML = "Following";
+          document.getElementById(value).disabled = true;
+          // location.reload();
+        }
+      }
+      
+      
+    },
+    
+    GoToUser: async function(value)
+    {
+      console.log(value);
+      App.init();
+      window.location = 'user.html';
+      
     }
 
-  //   toString:function (x){
-  //     var b = new bytes(20);
-  //     for (var i = 0; i < 20; i++)
-  //         b[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));
-  //     return string(b);
-  // }
 
 };
 
@@ -219,3 +248,11 @@ $(function() {
   //   });
   // },
   // If you are not already present in contract then clicking on register takes you on register page
+
+
+  //   toString:function (x){
+  //     var b = new bytes(20);
+  //     for (var i = 0; i < 20; i++)
+  //         b[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));
+  //     return string(b);
+  // }

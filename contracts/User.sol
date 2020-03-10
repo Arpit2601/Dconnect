@@ -94,26 +94,35 @@ contract User {
         return idx;
     }
 
-    function Follow(uint this_user, uint to_follow) public returns (bool)
+    function Follow(string memory _address, int to_follow) public returns (bool)
     {
         // https://medium.com/coinmonks/what-the-hack-is-memory-and-storage-in-solidity-6b9e62577305
         // If you use memory then you wont see changes so always use storage
         // when updating contract
         // add to_follow to this users' Following array
-        userS storage u = usersM[this_user];
-        u.Following.push(to_follow);
-        
+        uint this_user = getidxFromAddress(_address);
+        usersM[this_user].Following.push(uint(to_follow));
         // add this_user to to_follow users Followers array
-        u = usersM[to_follow];
-        u.Followers.push(this_user);
+        usersM[uint(to_follow)].Followers.push(this_user);
         return true;
 
     }
 
-    // function append(uint[] storage d, uint x) internal{
-    //     d.push(x);
-    // }
+    // If current user follows the user with index id
+    function CheckFollow(string memory _address, uint id) public returns(bool)
+    {
+        uint userid = getidxFromAddress(_address);
+        userS memory u = usersM[userid];
 
+        for(uint i = 0;i < u.Following.length;i++)
+        {
+            if(id == u.Following[i])
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     function parseAddr(string memory _a) internal pure returns (address _parsedAddress) {
         bytes memory tmp = bytes(_a);
@@ -147,6 +156,9 @@ contract User {
 
 
 
+    // function append(uint[] storage d, uint x) internal{
+    //     d.push(x);
+    // }
 
 
 }
