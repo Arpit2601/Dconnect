@@ -3,6 +3,7 @@ App = {
   contracts: {},
   account: '0x0',
   userInstance:null,
+  postInstance:null,
 
   init: function() {
     return App.initWeb3();
@@ -59,11 +60,7 @@ App = {
               for(var i=0;i<total_users;i++)
               {
                     App.userInstance.getUserInfo.call(i).then(function(user){
-                      // Check if current user follows this i user
-                      // console.log(user[3]);
                       App.userInstance.CheckFollow.call(App.account, user[3]).then(function(Check) {
-                        // console.log(Check);
-                        // console.log(num);
                         var name = user[0];
                         var age = user[1];
                         var gender = user[2];
@@ -79,11 +76,8 @@ App = {
                         }
                         Users.append(user_row);
                         
-                      });
-                      
-                      
+                      });                      
                     });
-
               }
             });
             
@@ -106,33 +100,37 @@ App = {
     window.location.replace('register.html');
   },
 
+  Signup_async: async function (params) {
+    let account1 = await web3.eth.getCoinbase(function(err, account){
+      if(err==null){App.account=account;} 
+    })
 
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance =  userInstance1;
+      let check = App.userInstance.userpresent.call(App.account);
+      if(check)
+      {
+        document.getElementById("register-btn").disabled = true;
+      }
+      var name = document.getElementById("name").value;
+      var age = document.getElementById("age").value;
+      var gender1 = document.getElementById("Male").checked;
+      var gender2 = document.getElementById("Female").checked;
+      var gender3 = document.getElementById("Transgender").checked;
+      var gender;
+      if(gender1==true) {gender="Male";}
+      else if(gender2==true){gender="Female";}
+      else if(gender3==true){gender="Transgender";}
+      else gender="";
 
-    Signup_async: async function (params) {
-      let account1 = await web3.eth.getCoinbase(function(err, account){
-        if(err==null){App.account=account;} 
-      })
+      let x = await App.userInstance.registerUser(name, age, gender);
+      console.log(x);
+      if(x)
+      {
+        window.location.replace('index.html');
+      }
 
-        let userInstance1 = await App.contracts.User.deployed();
-        App.userInstance =  userInstance1;
-        var name = document.getElementById("name").value;
-        var age = document.getElementById("age").value;
-        var gender1 = document.getElementById("Male").checked;
-        var gender2 = document.getElementById("Female").checked;
-        var gender3 = document.getElementById("Transgender").checked;
-        var gender;
-        if(gender1==true) {gender="Male";}
-        else if(gender2==true){gender="Female";}
-        else if(gender3==true){gender="Transgender";}
-        else gender="";
-
-        let x = await App.userInstance.registerUser(name, age, gender);
-        if(x==1)
-        {
-          window.location.replace('index.html');
-        }
-
-    },
+  },
 
     loadPage: function(){
       window.location = 'index.html';
@@ -142,30 +140,23 @@ App = {
     // Since Follow is storing data in contract payment has to be made
     Follow: async function(value){
       // first find index of current user 
-      // console.log(App.account);
       let userInstance = await App.contracts.User.deployed();
       App.userInstance = userInstance;
       let user_idx = await App.userInstance.getidxFromAddress(App.account);
       
       if(user_idx==value)
       {
-        // console.log(user_idx);
-        // console.log(value);
         alert("You cannot Follow yourself!!");
       }
       else
       {
-        // console.log(value);
         let x = await App.userInstance.Follow(App.account, value);
         if(x)
         {
           document.getElementById(value).innerHTML = "Following";
           document.getElementById(value).disabled = true;
-          // location.reload();
         }
       }
-      
-      
     },
     
     GoToUser: async function(value)
@@ -174,9 +165,54 @@ App = {
       App.init();
       window.location = 'user.html';
       
+    },
+
+    // First check if user has registered
+    Post: async function (params) {
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+      let check = await App.userInstance.userpresent.call(App.account);
+      if(check)
+      {
+        window.location = 'post.html';
+      }
+      else
+      {
+        alert("First register.")
+      }
+      
+
+    },
+
+    
+    CreatePost: async function(params) {
+      // console.log(App.account);
+      // let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      // let userInstance1 = await App.contracts.User.deployed();
+      // App.userInstance = userInstance1;
+      let postInstance1 = await App.contracts.Post.deployed();
+      
+      App.postInstance = postInstance1;
+      
+      var title = document.getElementById("title").value;
+      var text = document.getElementById("text").value;
+      var date = new Date().getTime();
+
+      // Find the userid from App.account then call create_post then call addPost
+      let user_idx = await App.userInstance.getidxFromAddress(App.account);
+      console.log(user_idx);
+      let temp = await App.postInstance.create_post(user_idx, title, text, date);
+      let postid = await App.postInstance.getPostid.call();
+      console.log(postid);
+      let check = await App.userInstance.addPost(user_idx, postid);
+      console.log(check);
+      if(check)
+      {
+        window.location = 'index.html';
+      }      
+
     }
-
-
 };
 
 $(function() {
