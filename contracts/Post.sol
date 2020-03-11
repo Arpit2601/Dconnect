@@ -15,7 +15,7 @@ contract Post {
     }
 
     uint public total_posts;
-    mapping(uint=>postS) postsM;
+    mapping(uint=>postS) public postsM;
 
 
     // Function to create post and return its postindex which is later stored in user post array
@@ -33,6 +33,11 @@ contract Post {
 
     function getPostid() public view returns(uint) {
         return total_posts-1;
+    }
+
+    function getPostInfo(uint postid) public view returns(string memory, string memory, uint, uint) {
+        postS memory p = postsM[postid];
+        return (p.Title, p.PostText, p.Date, p.owner);
     }
 
     

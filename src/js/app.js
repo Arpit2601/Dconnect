@@ -159,12 +159,93 @@ App = {
       }
     },
     
+    // Go to new page and add user index as hash value in url
     GoToUser: async function(value)
     {
-      console.log(value);
-      App.init();
-      window.location = 'user.html';
+      window.location.href = 'user.html#' + (value);
+    },
+
+    // Get the user index from hash and then display all the information
+    GoToUserTemp: async function()
+    {
+      await $.getJSON("User.json", function(user) {
+        App.contracts.User = TruffleContract(user);
+        App.contracts.User.setProvider(App.web3Provider);
+        App.contracts.User.deployed().then(function(i){App.userInstance=i;})
+      });
+      await $.getJSON("Post.json", function(post) {
+        App.contracts.Post = TruffleContract(post);
+        App.contracts.Post.setProvider(App.web3Provider);
+      });
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+      let postInstance1 = await App.contracts.Post.deployed();
+      App.postInstance = postInstance1;
+
+      var value = parseInt(window.location.hash.slice(1));
+
+      // We have the user object
+      let user = await App.userInstance.getUserInfo.call(value);
+      // setting the name
+      document.getElementById('name').innerHTML = user[0];  
       
+      //------------------------------------------------
+      // getting all the followers
+      var followers_div =  document.getElementById("Followers");
+      var followers = user[5];
+      for(var i=0;i<followers.length;i++)
+      {
+        let follower_info = await App.userInstance.getUserInfo.call(followers[i]);
+        // var follower_row = "<p id = user" + follower_info[4] + " onclick=App.GoToUser('" + follower_info[4] + "') style=cursor:pointer;>" + follower_info[0] + "</p>";
+        var follower_row = document.createTextNode(follower_info[0]);
+        followers_div.appendChild(follower_row);
+      }
+
+      //--------------------------------------------------
+      // getting all the followings
+      var following_div =  document.getElementById("Following");
+      var followings = user[6];
+      for(var i=0;i<followings.length;i++)
+      {
+        let following_info = await App.userInstance.getUserInfo.call(followings[i]);
+        // var following_row = "<p id = user" + following_info[4] + " onclick=App.GoToUser('" + following_info[4] + "') style=cursor:pointer;>" + following_info[0] + "</p>";
+        var following_row = document.createTextNode(following_info[0]);
+        following_div.appendChild(following_row);
+
+      }
+
+      // getting all the posts
+      //-----------------------------
+      var posts_div = document.getElementById("posts");
+      var posts = user[4];
+      console.log(posts[1]);
+      console.log(posts.length);
+      for(var i=0;i<posts.length;i++)
+      {
+        let post_info = await App.postInstance.getPostInfo.call(posts[i]);
+        var datetemp = new Date(post_info[2]*1000);
+        var date = datetemp.getDate()+"/"+
+                   datetemp.getMonth()+"/"+
+                   datetemp.getFullYear()+"  At"+
+                   datetemp.getHours()+":"+
+                   datetemp.getMinutes();
+        var post_card = document.createElement('div');
+        post_card.classList = 'card';
+        var content = `
+          <h5 class="card-header">${post_info[0]}</h5>
+          <div class="card-body">
+            <p class="card-text">${post_info[1]}</p>
+          </div>
+          <div class="card-footer text-muted">${date}</div>
+        
+        `;
+        // Append newyly created card element to the container
+        post_card.innerHTML += content;
+        posts_div.appendChild(post_card);
+      }
+      
+
     },
 
     // First check if user has registered
