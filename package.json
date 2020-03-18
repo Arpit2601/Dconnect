@@ -13,6 +13,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "lite-server": "^2.3.0"
+    "lite-server": "^2.3.0",
+    "typescript": "^2.8.3"
+  },
+  "dependencies": {
+    "ipfs-api": "^22.3.0"
   }
 }

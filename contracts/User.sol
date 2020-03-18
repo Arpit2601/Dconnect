@@ -10,7 +10,7 @@ contract User {
         address userid;
         uint index;
         // string address_string;
-        // bytes32 ProfilePic; // Hash of profilepic
+        string ProfilePicHash; // Hash of profilepic
         uint[] Posts;
         uint[] Followers;    // Users who are following this user
         uint[] Following;    // This user is following
@@ -38,14 +38,14 @@ contract User {
     }
 
 
-    function getUserInfo(uint idx) public view returns (string memory, uint8, string memory, uint, uint[] memory, uint[] memory, uint[] memory){
+    function getUserInfo(uint idx) public view returns (string memory, uint8, string memory, uint,string memory, uint[] memory, uint[] memory, uint[] memory){
         // address temp_address = usersA[idx];
         userS memory u = usersM[idx];
-        return (u.Name, u.Age, u.Gender,u.index, u.Posts, u.Followers, u.Following);
+        return (u.Name, u.Age, u.Gender,u.index, u.ProfilePicHash, u.Posts, u.Followers, u.Following);
     }
 
     //TODO: check if user already exists
-    function registerUser(string memory _name, uint8 _age, string memory _gender) public returns (bool){
+    function registerUser(string memory _name, uint8 _age, string memory _gender, string memory _ProfilePicHash) public returns (bool){
         
         // userS memory u = usersM[msg.sender];
         bytes memory testname = bytes(_name);
@@ -55,7 +55,7 @@ contract User {
         require(testgender.length != 0, "Please enter gender");
         // require(!userpresent(), "User already present");
         // string memory address_string = AddresstoString(msg.sender);
-        usersM[total_users] = (userS({Name:_name, Age:_age, Gender:_gender,index:total_users, userid:msg.sender,Posts:new uint[](0), Followers:new uint[](0), Following:new uint[](0), Isuser:true}));
+        usersM[total_users] = (userS({Name:_name, Age:_age, Gender:_gender,index:total_users, userid:msg.sender, ProfilePicHash:_ProfilePicHash, Posts:new uint[](0), Followers:new uint[](0), Following:new uint[](0), Isuser:true}));
         usersA.push(msg.sender);
         total_users++;
         return true;

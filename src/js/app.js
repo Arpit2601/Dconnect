@@ -1,15 +1,24 @@
+
 App = {
   web3Provider: null,
   contracts: {},
   account: '0x0',
   userInstance:null,
   postInstance:null,
+  ipfsHash:null,
+  buffer:null,
+  ipfs:null,
+  userid:null,
 
   init: function() {
+    // const IPFS = require('ipfs-api');
+    // const ipfs = new IPFS({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+    // App.ipfs = ipfs;
     return App.initWeb3();
   },
 
   initWeb3: function() {
+    
     // TODO: refactor conditional
     if (typeof web3 !== 'undefined') {
       // If a web3 instance is already provided by Meta Mask.
@@ -100,6 +109,19 @@ App = {
     window.location.replace('register.html');
   },
 
+  // // capture the file as blob data
+  // CapturePic:  function(event) {
+  //   console.log("abcd");
+  //   event.preventDefault();
+  //   var file = event.target.files[0];
+  //   var reader = new window.FileReader()
+  //   reader.readAsArrayBuffer(file)
+  //   reader.onloadend = () => {
+  //     this.setState({ buffer: Buffer(reader.result) })
+  //     console.log('buffer', this.state.buffer)
+  //   }
+  // },
+
   Signup_async: async function (params) {
     let account1 = await web3.eth.getCoinbase(function(err, account){
       if(err==null){App.account=account;} 
@@ -123,8 +145,19 @@ App = {
       else if(gender3==true){gender="Transgender";}
       else gender="";
 
-      let x = await App.userInstance.registerUser(name, age, gender);
-      console.log(x);
+      // Profile Pic
+      // ipfs.files.add(App.buffer, (error, result) => {
+      //   if(error) {
+      //     console.log("error");
+      //     return ;
+      //   }
+      //   ipfsHash = result[0].hash;
+      // });
+      ipfsHash = "pic";
+
+      console.log(ipfsHash);
+
+      let x = await App.userInstance.registerUser(name, age, gender, ipfsHash);
       if(x)
       {
         window.location.replace('index.html');
@@ -184,6 +217,7 @@ App = {
       App.postInstance = postInstance1;
 
       var value = parseInt(window.location.hash.slice(1));
+      App.userid = value;
 
       // We have the user object
       let user = await App.userInstance.getUserInfo.call(value);
@@ -193,24 +227,29 @@ App = {
       //------------------------------------------------
       // getting all the followers
       var followers_div =  document.getElementById("Followers");
-      var followers = user[5];
+      var followers = user[6];
+      var br;
       for(var i=0;i<followers.length;i++)
       {
         let follower_info = await App.userInstance.getUserInfo.call(followers[i]);
-        // var follower_row = "<p id = user" + follower_info[4] + " onclick=App.GoToUser('" + follower_info[4] + "') style=cursor:pointer;>" + follower_info[0] + "</p>";
         var follower_row = document.createTextNode(follower_info[0]);
+        br = document.createElement("br");
+        followers_div.appendChild(br);
         followers_div.appendChild(follower_row);
+        
       }
 
       //--------------------------------------------------
       // getting all the followings
       var following_div =  document.getElementById("Following");
-      var followings = user[6];
+      var followings = user[7];
+      var br;
       for(var i=0;i<followings.length;i++)
       {
         let following_info = await App.userInstance.getUserInfo.call(followings[i]);
-        // var following_row = "<p id = user" + following_info[4] + " onclick=App.GoToUser('" + following_info[4] + "') style=cursor:pointer;>" + following_info[0] + "</p>";
         var following_row = document.createTextNode(following_info[0]);
+        br = document.createElement("br");
+        following_div.appendChild(br);
         following_div.appendChild(following_row);
 
       }
@@ -218,26 +257,36 @@ App = {
       // getting all the posts
       //-----------------------------
       var posts_div = document.getElementById("posts");
-      var posts = user[4];
-      console.log(posts[1]);
-      console.log(posts.length);
+      var posts = user[5];
       for(var i=0;i<posts.length;i++)
       {
         let post_info = await App.postInstance.getPostInfo.call(posts[i]);
         var datetemp = new Date(post_info[2]*1000);
-        var date = datetemp.getDate()+"/"+
-                   datetemp.getMonth()+"/"+
-                   datetemp.getFullYear()+"  At"+
+        var date = 
+                   datetemp.toLocaleString('default', { month: 'long' })+" "+
+                   datetemp.getDate()+" '"+
+                   datetemp.getFullYear()+"  at "+
                    datetemp.getHours()+":"+
                    datetemp.getMinutes();
+        var upvotes = post_info[4];
+        console.log(upvotes);
         var post_card = document.createElement('div');
-        post_card.classList = 'card';
+        post_card.classList = 'card mt-2';
         var content = `
           <h5 class="card-header">${post_info[0]}</h5>
           <div class="card-body">
-            <p class="card-text">${post_info[1]}</p>
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
           </div>
-          <div class="card-footer text-muted">${date}</div>
+          <div class="card-footer text-muted">
+            <div style=float:left;>${date}</div>
+            
+            <div style=float:right;>${upvotes}</div>
+            <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" onclick="App.Upvote(${posts[i]})" style=cursor:pointer;>Upvote</button>
+            <button class="btn btn-primary" onclick="App.Bookmark(${posts[i]})" style=cursor:pointer;>Bookmark</button>
+          </div>
         
         `;
         // Append newyly created card element to the container
@@ -246,6 +295,27 @@ App = {
       }
       
 
+    },
+
+    Upvote: async function(value) {
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+      let userid = await App.userInstance.getidxFromAddress(App.account);
+      App.userid = userid;
+      console.log(value);
+      console.log(App.userid);
+      let check = await App.postInstance.checkupvote.call(value, App.userid);
+      if(check==0)
+      {
+        alert("You have already upvoted this post.");
+      }
+      else
+      {
+        let num = await App.postInstance.upvote(value, App.userid);
+        // $("#post").load();
+        console.log(num);
+      }
     },
 
     // First check if user has registered
@@ -278,16 +348,13 @@ App = {
       
       var title = document.getElementById("title").value;
       var text = document.getElementById("text").value;
-      var date = new Date().getTime();
+      var date = new Date().getTime()/1000;
 
       // Find the userid from App.account then call create_post then call addPost
       let user_idx = await App.userInstance.getidxFromAddress(App.account);
-      console.log(user_idx);
       let temp = await App.postInstance.create_post(user_idx, title, text, date);
       let postid = await App.postInstance.getPostid.call();
-      console.log(postid);
       let check = await App.userInstance.addPost(user_idx, postid);
-      console.log(check);
       if(check)
       {
         window.location = 'index.html';
@@ -304,69 +371,7 @@ $(function() {
 
 
 
-  // Signup: function () {
-      
-  //     web3.eth.getCoinbase(function(err, account) {
-  //       if (err === null) 
-  //       {
-  //         App.account = account;
-  //         // window.location = 'register.html';
-  //         console.log(App.account);
-  //         App.contracts.User.deployed().then(function(i){
-  //           App.userInstance=i;
-  //           // return App.userInstance.userpresent(App.account);
-  //         }).then(function(){
-  //           // console.log(x);
-  //           console.log(document.URL);
-  //           var name = document.getElementById("name").value;
-  //           var age = document.getElementById("age").value;
-  //           var gender1 = document.getElementById("Male").checked;
-  //           var gender2 = document.getElementById("Female").checked;
-  //           var gender3 = document.getElementById("Transgender").checked;
-  //           var gender;
-  //           if(gender1==true) {gender="Male";}
-  //           else if(gender2==true){gender="Female";}
-  //           else if(gender3==true){gender="Transgender";}
-  //           else gender="";
-  //           App.userInstance.registerUser(name, age, gender).then(function(){
-  //             return App.loadPage();
-  //           });
-  //           });
-  //       }
-  //     });      
-  //   },
-
-
-  // If user is not present then clicking on login will take him to register page
-  // Login: function(){
-  //   web3.eth.getCoinbase(function(err, account){
-  //     if(err==null)
-  //     {
-  //       // console.log(account);
-  //       App.contracts.User.deployed().then(function(instance) {
-  //         var accounttemp = account;
-  //         // console.log(typeof accounttemp);
-  //         App.userInstance = instance;
-  //         // console.log(App.userInstance);
-  //         return App.userInstance.userpresent(account);
-  //       }).then(function(x) {
-  //         // console.log(account);
-  //         if (x) {
-  //           console.log(account);
-  //           // $('register-btn').hide();
-  //         }
-  //         else {
-  //           // console.log(account);
-  //           // $('login-btn').hide();
-  //           window.location = 'register.html';
-  //         }
-  //       });
-  //     }
-  //   });
-  // },
-  // If you are not already present in contract then clicking on register takes you on register page
-
-
+  
   //   toString:function (x){
   //     var b = new bytes(20);
   //     for (var i = 0; i < 20; i++)
