@@ -14,7 +14,8 @@ contract User {
         uint[] Posts;
         uint[] Followers;    // Users who are following this user
         uint[] Following;    // This user is following
-        bool Isuser;
+        uint[] BookmarkedPosts; // Bookmarked posts
+        // bool Isuser;
     }
 
     //Mappings are useful for O(1) searching 
@@ -31,11 +32,11 @@ contract User {
     }
 
 
-    modifier checkuser(uint id) {
-        userS memory u = usersM[id];
-        require(u.Isuser, "User does not exist!");
-        _;
-    }
+    // modifier checkuser(uint id) {
+    //     userS memory u = usersM[id];
+    //     require(u.Isuser, "User does not exist!");
+    //     _;
+    // }
 
 
     function getUserInfo(uint idx) public view returns (string memory, uint8, string memory, uint,string memory, uint[] memory, uint[] memory, uint[] memory){
@@ -55,7 +56,7 @@ contract User {
         require(testgender.length != 0, "Please enter gender");
         // require(!userpresent(), "User already present");
         // string memory address_string = AddresstoString(msg.sender);
-        usersM[total_users] = (userS({Name:_name, Age:_age, Gender:_gender,index:total_users, userid:msg.sender, ProfilePicHash:_ProfilePicHash, Posts:new uint[](0), Followers:new uint[](0), Following:new uint[](0), Isuser:true}));
+        usersM[total_users] = (userS({Name:_name, Age:_age, Gender:_gender,index:total_users, userid:msg.sender, ProfilePicHash:_ProfilePicHash, Posts:new uint[](0), Followers:new uint[](0), Following:new uint[](0),BookmarkedPosts:new uint[](0)}));
         usersA.push(msg.sender);
         total_users++;
         return true;
@@ -109,7 +110,7 @@ contract User {
     }
 
     // If current user follows the user with index id
-    function CheckFollow(string memory _address, uint id) public returns(bool)
+    function CheckFollow(string memory _address, uint id) public view  returns(bool)
     {
         uint userid = getidxFromAddress(_address);
         userS memory u = usersM[userid];
@@ -130,6 +131,28 @@ contract User {
         usersM[_user].Posts.push(_post);
         return true;
     }
+
+    // Add postid post to bookmarked post for this user
+    function BookmarkPost(uint _userid, uint _postid) public returns(bool)
+    {
+        usersM[_userid].BookmarkedPosts.push(_postid);
+        return true;
+    }
+
+    // Check if this user has already bookmarked this post
+    function CheckBookmark(uint _userid, uint _postid) public view returns(bool)
+    {
+        userS memory u = usersM[_userid];
+        for(uint i = 0 ;i < u .BookmarkedPosts.length ; i++)
+        {
+            if(u.BookmarkedPosts[i]==_postid)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function parseAddr(string memory _a) internal pure returns (address _parsedAddress) {
         bytes memory tmp = bytes(_a);
         uint160 iaddr = 0;
