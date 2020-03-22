@@ -5,12 +5,8 @@ contract Post {
     struct postS {
         uint owner;
         uint postindex;
-        // Why will the post have address 
-        // Address is of the user
-        // address postid;
         string Title;
         string PostText;
-        // bytes32 PostPic;
         uint256 Date;
         uint upvotes;
     }
@@ -30,7 +26,6 @@ contract Post {
         bytes memory text = bytes(_text);
         require(title.length!=0, "Please enter title of post");
         require(text.length!=0, "Post cannot be empty");
-        // upvoted.push([total_posts]);
         postsM[total_posts] = postS({owner: _owner, postindex: total_posts, Title:_title, PostText: _text, Date: _date, upvotes:0});
         total_posts++;
         return true;
@@ -40,7 +35,7 @@ contract Post {
         return total_posts-1;
     }
 
-    function getPostInfo(uint postid) public view returns(string memory, string memory, uint, uint,uint) {
+    function getPostInfo(uint postid) public view returns(string memory, string memory, uint, uint, uint) {
         postS memory p = postsM[postid];
         return (p.Title, p.PostText, p.Date, p.owner, p.upvotes);
     }
@@ -74,6 +69,4 @@ contract Post {
         }
         return true;
     }
-
-    
 }

@@ -15,14 +15,21 @@
 
     <div class="row" >
       <div class="col-2 col-md-offset-2">
-        <h3>About</h3>
-        <h4 id="name"></h4>
+        <!-- <h3>About</h3> -->
+        <!-- <h4 id="name"></h4> -->
       </div>
-      <div id="post" class="col-8" style="border-left: solid;">
-        <h2>Posts</h2>
+      <div id="post" class="col-8" >
+        <h2 id="name"></h2>
+
+        <button id="Post_btn" style="background: transparent;border: none !important;cursor: pointer;" onclick="App.ShowPosts()">Posts</button>
+        <button id="Bookmarked_btn" style="margin-left: 10px;background: transparent;border: none !important;cursor: pointer;" onclick="App.ShowBookmarked()">Bookmarked</button>
+        <button id="Upvoted_btn" style="margin-left: 10px;background: transparent;border: none !important;cursor: pointer;" onclick="App.ShowUpvoted()">Upvotes</button>
+        <button id="Followers_btn" style="margin-left: 10px;background: transparent;border: none !important;cursor: pointer;" onclick="App.ShowFollowers()">Followers</button>
+        <button id="Following_btn" style="margin-left: 10px;background: transparent;border: none !important;cursor: pointer;" onclick="App.ShowFollowing()">Following</button>
+        <hr>
         <div>
-          <input type="checkbox" name="Bookmarked" value="5" id="Bookmarked" onclick="App.ShowBookmarked()"/>
-          <span style="width:100px;display:inline-block;">Bookmarked</span>
+          <!-- <input type="checkbox" name="Bookmarked" value="5" id="Bookmarked" onclick="App.ShowBookmarked()"/>
+          <span style="width:100px;display:inline-block;">Bookmarked</span> -->
           <!-- <input type="checkbox" name="All" value="5" id="All" />
           <span style="width:100px;display:inline-block;" onclick="App.GoToUser()">All</span> -->
       </div>           
@@ -31,14 +38,14 @@
 
         </div>
       </div>
-      <div class="col-2 col-md-offset-2" style="border-left: solid;">
+      <div class="col-2 col-md-offset-2" >
         <div class="row">
-          <h4>Followers</h4>
+          <!-- <h4>Followers</h4> -->
           <br>
           <div id="Followers"></div>
         </div>
         <div class="row">
-          <h4>Following</h4>
+          <!-- <h4>Following</h4> -->
           <br>
           <div id="Following"></div>
         </div>

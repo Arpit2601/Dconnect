@@ -69,16 +69,15 @@ App = {
                     App.userInstance.getUserInfo.call(i).then(function(user){
                       App.userInstance.CheckFollow.call(App.account, user[3]).then(function(Check) {
                         var name = user[0];
-                        var age = user[1];
-                        var gender = user[2];
-                        var value = user[3];
+                        var bio = user[1];
+                        var value = user[2];
                         if(Check)
                         {
-                          var user_row = "<tr><th id = user" + value + " onclick=App.GoToUser('" + value + "') style=cursor:pointer;><u>" + name + "</u></th><td>" + age + "</td><td>" + gender + "</td><td>" + "<button class="+"btn btn-primary"+" type="+"button id='" + value +"' value='"+value +"' onclick = App.Follow('" + value + "') disabled>Following</button>" + "</td></tr>";
+                          var user_row = "<tr><th id = user" + value + " onclick=App.GoToUser('" + value + "') style=cursor:pointer;><u>" + name + "</u></th><td>" + bio + "</td><td>" + "<button class="+"btn btn-primary"+" type="+"button id='" + value +"' value='"+value +"' onclick = App.Follow('" + value + "') disabled>Following</button>" + "</td></tr>";
                         }
                         else
                         {
-                          var user_row = "<tr><th id = user" + value + " onclick=App.GoToUser('" + value + "') style=cursor:pointer;><u>" + name + "</u></th><td>" + age + "</td><td>" + gender + "</td><td>" + "<button class="+"btn btn-primary"+" type="+"button id='" + value +"' value='"+value +"' onclick = App.Follow('" + value + "')>Follow</button>" + "</td></tr>";
+                          var user_row = "<tr><th id = user" + value + " onclick=App.GoToUser('" + value + "') style=cursor:pointer;><u>" + name + "</u></th><td>" + bio + "</td><td>" + "<button class="+"btn btn-primary"+" type="+"button id='" + value +"' value='"+value +"' onclick = App.Follow('" + value + "')>Follow</button>" + "</td></tr>";
                           
                         }
                         Users.append(user_row);
@@ -131,25 +130,9 @@ App = {
         document.getElementById("register-btn").disabled = true;
       }
       var name = document.getElementById("name").value;
-      var age = document.getElementById("age").value;
-      var gender1 = document.getElementById("Male").checked;
-      var gender2 = document.getElementById("Female").checked;
-      var gender3 = document.getElementById("Transgender").checked;
-      var gender;
-      if(gender1==true) {gender="Male";}
-      else if(gender2==true){gender="Female";}
-      else if(gender3==true){gender="Transgender";}
-      else gender="";
-
-      // Profile Pic
-      // ipfs.files.add(App.buffer, (error, result) => {
-      //   if(error) {
-      //     return ;
-      //   }
-      //   ipfsHash = result[0].hash;
-      // });
-      ipfsHash = "pic";
-      let x = await App.userInstance.registerUser(name, age, gender, ipfsHash);
+      var bio = document.getElementById("bio").value;
+      // ipfsHash = "pic";
+      let x = await App.userInstance.registerUser(name, bio);
       if(x)
       {
         window.location.replace('index.html');
@@ -223,49 +206,11 @@ App = {
       let user = await App.userInstance.getUserInfo.call(value);
       // setting the name
       document.getElementById('name').innerHTML = user[0];  
-      
-      //------------------------------------------------
-      // getting all the followers
-      var followers_div =  document.getElementById("Followers");
-      var followers = user[6];
-      var br;
-      for(var i=0;i<followers.length;i++)
-      {
-        let follower_info = await App.userInstance.getUserInfo.call(followers[i]);
-        var follower_row = document.createElement('div');
-        var content = `
-        <p  onclick="App.GoToUserFromOtherUser(${follower_info[3]})" style=cursor:pointer;>${follower_info[0]}</p>
-        `;
-        follower_row.innerHTML+=content;
-        br = document.createElement("br");
-        followers_div.appendChild(br);
-        followers_div.appendChild(follower_row);
-        
-      }
-
-      //--------------------------------------------------
-      // getting all the followings
-      var following_div =  document.getElementById("Following");
-      var followings = user[7];
-      var br;
-      for(var i=0;i<followings.length;i++)
-      {
-        let following_info = await App.userInstance.getUserInfo.call(followings[i]);
-        var following_row = document.createElement('div');
-        br = document.createElement("br");
-        var content = `
-        <p  onclick="App.GoToUserFromOtherUser(${following_info[3]})" style=cursor:pointer;>${following_info[0]}</p>
-        `;
-        following_row.innerHTML+=content;
-        following_div.appendChild(br);
-        following_div.appendChild(following_row);
-
-      }
 
       // getting all the posts
       //-----------------------------
       var posts_div = document.getElementById("posts");
-      var posts = user[5];
+      var posts = user[3];
       for(var i=posts.length-1;i>=0;i--)
       {
         let post_info = await App.postInstance.getPostInfo.call(posts[i]);
@@ -340,108 +285,145 @@ App = {
 
     },
 
-    // If Bookmarked is checked then show only bookmarked posts otherwire show all 
-    ShowBookmarked: async function() {
-        await $.getJSON("User.json", function(user) {
-          App.contracts.User = TruffleContract(user);
-          App.contracts.User.setProvider(App.web3Provider);
-          App.contracts.User.deployed().then(function(i){App.userInstance=i;})
-        });
-        await $.getJSON("Post.json", function(post) {
-          App.contracts.Post = TruffleContract(post);
-          App.contracts.Post.setProvider(App.web3Provider);
-        });
-        let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
-        let userInstance1 = await App.contracts.User.deployed();
-        App.userInstance = userInstance1;
-        let postInstance1 = await App.contracts.Post.deployed();
-        App.postInstance = postInstance1;
-        var value = parseInt(window.location.hash.slice(1));
-        App.userid = value;
-        if(document.getElementById("Bookmarked").checked)
-        {
-          console.log("checked");
-          // let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
-          // let userInstance1 = await App.contracts.User.deployed();
-          // App.userInstance = userInstance1;
-          // let postInstance1 = await App.contracts.Post.deployed();
-          // App.postInstance = postInstance1;
+    // All the posts of this user(with #user).
+    ShowPosts: async function() {
+      await $.getJSON("User.json", function(user) {
+        App.contracts.User = TruffleContract(user);
+        App.contracts.User.setProvider(App.web3Provider);
+        App.contracts.User.deployed().then(function(i){App.userInstance=i;})
+      });
+      await $.getJSON("Post.json", function(post) {
+        App.contracts.Post = TruffleContract(post);
+        App.contracts.Post.setProvider(App.web3Provider);
+      });
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+      let postInstance1 = await App.contracts.Post.deployed();
+      App.postInstance = postInstance1;
+      var value = parseInt(window.location.hash.slice(1));
+      App.userid = value;
 
-
-
-          // We have the user object
-          let user = await App.userInstance.getUserInfo.call(value);
-          // getting bookmarked the posts
-          //-----------------------------
-          document.getElementById("posts").innerHTML="";
-          var posts_div = document.getElementById("posts");
-          var posts = user[5];
-          for(var i=posts.length-1;i>=0;i--)
-          {
-            let currentuserid = await App.userInstance.getidxFromAddress(App.account);
-            let check = await App.userInstance.CheckBookmark.call(currentuserid, posts[i]);
-            if(check==1)
-            {
-              let post_info = await App.postInstance.getPostInfo.call(posts[i]);
-              var datetemp = new Date(post_info[2]*1000);
-              var date = 
-                        datetemp.toLocaleString('default', { month: 'long' })+" "+
-                        datetemp.getDate()+" '"+
-                        datetemp.getFullYear()+"  at "+
-                        datetemp.getHours()+":"+
-                        datetemp.getMinutes();
-              var upvotes = post_info[4];
-              var post_card = document.createElement('div');
-              post_card.classList = 'card mt-2';
-              var content = `
-              <div class="card-header" style=height:60px;>
-                <h5 >${post_info[0]}</h5>
-                <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
-              </div>
-              <div class="card-body">
-                <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
-                
-              </div>
-              <div class="card-footer text-muted">
-                <div style=float:left;>${date}</div>
-                
-                <div style=float:right;>${upvotes}</div>
-                <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
-              </div>
-              <div class="card-footer">
-                <button class="btn btn-primary" onclick="App.Upvote(${posts[i]})" style=cursor:pointer;>Upvote</button>
-                <button class="btn btn-primary" onclick="App.Bookmark(${posts[i]})" style=cursor:pointer;>Bookmark</button>
-              </div>
-            
-            `;
-            // Append newyly created card element to the container
-            post_card.innerHTML += content;
-            posts_div.appendChild(post_card);
-          }
-        }
-      }
-      else
+      document.getElementById("Upvoted_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Followers_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Bookmarked_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Post_btn").style.backgroundColor = "#d6cbd3";
+      document.getElementById("Following_btn").style.backgroundColor = "#ffffff";
+      // We have the user object
+      let user = await App.userInstance.getUserInfo.call(value);
+      // getting bookmarked the posts
+      //-----------------------------
+      document.getElementById("posts").innerHTML="";
+      var posts_div = document.getElementById("posts");
+      var posts = user[3];
+      for(var i=posts.length-1;i>=0;i--)
       {
-        console.log("unchecked");
-        // let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
-        // let userInstance1 = await App.contracts.User.deployed();
-        // App.userInstance = userInstance1;
-        // let postInstance1 = await App.contracts.Post.deployed();
-        // App.postInstance = postInstance1;
-
-        // var value = parseInt(window.location.hash.slice(1));
-        // App.userid = value;
-
-        // We have the user object
-        let user = await App.userInstance.getUserInfo.call(value);
-        // getting bookmarked the posts
-        //-----------------------------
-        document.getElementById("posts").innerHTML="";
-        var posts_div = document.getElementById("posts");
-        var posts = user[5];
-        for(var i=posts.length-1;i>=0;i--)
+        let currentuserid = await App.userInstance.getidxFromAddress(App.account);
+        let check = await App.userInstance.CheckBookmark.call(currentuserid, posts[i]);
+        let post_info = await App.postInstance.getPostInfo.call(posts[i]);
+        var datetemp = new Date(post_info[2]*1000);
+        var date = 
+                  datetemp.toLocaleString('default', { month: 'long' })+" "+
+                  datetemp.getDate()+" '"+
+                  datetemp.getFullYear()+"  at "+
+                  datetemp.getHours()+":"+
+                  datetemp.getMinutes();
+        var upvotes = post_info[4];
+        var post_card = document.createElement('div');
+        post_card.classList = 'card mt-2';
+        if(check==1)
         {
-          let post_info = await App.postInstance.getPostInfo.call(posts[i]);
+          
+          var content = `
+          <div class="card-header" style=height:60px;>
+            <h5 >${post_info[0]}</h5>
+            <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
+          </div>
+          <div class="card-body">
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
+            
+          </div>
+          <div class="card-footer text-muted">
+            <div style=float:left;>${date}</div>
+            
+            <div style=float:right;>${upvotes}</div>
+            <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" onclick="App.Upvote(${posts[i]})" style=cursor:pointer;>Upvote</button>
+            <button class="btn btn-primary" onclick="App.Bookmark(${posts[i]})" style=cursor:pointer;>Bookmark</button>
+          </div>
+        
+        `;
+        }
+        else
+        {
+          var content = `
+          <div class="card-header" style=height:60px;>
+            <h5 >${post_info[0]}</h5>
+            
+          </div>
+          <div class="card-body">
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
+            
+          </div>
+          <div class="card-footer text-muted">
+            <div style=float:left;>${date}</div>
+            
+            <div style=float:right;>${upvotes}</div>
+            <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" onclick="App.Upvote(${posts[i]})" style=cursor:pointer;>Upvote</button>
+            <button class="btn btn-primary" onclick="App.Bookmark(${posts[i]})" style=cursor:pointer;>Bookmark</button>
+          </div>
+        
+        `;
+         
+        }        
+        post_card.innerHTML += content;
+        posts_div.appendChild(post_card);
+      }
+    },
+
+    // All the bookmarked posts of this user(with #user).
+    ShowBookmarked: async function() {
+      await $.getJSON("User.json", function(user) {
+        App.contracts.User = TruffleContract(user);
+        App.contracts.User.setProvider(App.web3Provider);
+        App.contracts.User.deployed().then(function(i){App.userInstance=i;})
+      });
+      await $.getJSON("Post.json", function(post) {
+        App.contracts.Post = TruffleContract(post);
+        App.contracts.Post.setProvider(App.web3Provider);
+      });
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+      let postInstance1 = await App.contracts.Post.deployed();
+      App.postInstance = postInstance1;
+      var value = parseInt(window.location.hash.slice(1));
+      App.userid = value;
+
+      document.getElementById("Upvoted_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Followers_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Bookmarked_btn").style.backgroundColor = "#d6cbd3";
+      document.getElementById("Post_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Following_btn").style.backgroundColor = "#ffffff";
+      // We have the user object
+      let user = await App.userInstance.getUserInfo.call(value);
+      // getting bookmarked the posts
+      //-----------------------------
+      document.getElementById("posts").innerHTML="";
+      var posts_div = document.getElementById("posts");
+      var bookmarked_posts = user[6];
+      for(var i=bookmarked_posts.length-1;i>=0;i--)
+      {
+        // let currentuserid = await App.userInstance.getidxFromAddress(App.account);
+        // let check = await App.userInstance.CheckBookmark.call(currentuserid, posts[i]);
+        // if(check==1)
+        // {
+          let post_info = await App.postInstance.getPostInfo.call(bookmarked_posts[i]);
           var datetemp = new Date(post_info[2]*1000);
           var date = 
                     datetemp.toLocaleString('default', { month: 'long' })+" "+
@@ -452,61 +434,242 @@ App = {
           var upvotes = post_info[4];
           var post_card = document.createElement('div');
           post_card.classList = 'card mt-2';
-          let currentuserid = await App.userInstance.getidxFromAddress(App.account);
-          let check = await App.userInstance.CheckBookmark.call(currentuserid, posts[i]);
-          if(check==1)
-          {
-            var content = `
-            <div class="card-header" style=height:60px;>
-              <h5 >${post_info[0]}</h5>
-              <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
-            </div>
-            <div class="card-body">
-              <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
-              
-            </div>
-            <div class="card-footer text-muted">
-              <div style=float:left;>${date}</div>
-              
-              <div style=float:right;>${upvotes}</div>
-              <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
-            </div>
-            <div class="card-footer">
-              <button class="btn btn-primary" onclick="App.Upvote(${posts[i]})" style=cursor:pointer;>Upvote</button>
-              <button class="btn btn-primary" onclick="App.Bookmark(${posts[i]})" style=cursor:pointer;>Bookmark</button>
-            </div>
+          var content = `
+          <div class="card-header" style=height:60px;>
+            <h5 >${post_info[0]}</h5>
+            <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
+          </div>
+          <div class="card-body">
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
+            
+          </div>
+          <div class="card-footer text-muted">
+            <div style=float:left;>${date}</div>
+            
+            <div style=float:right;>${upvotes}</div>
+            <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" onclick="App.Upvote(${posts[i]})" style=cursor:pointer;>Upvote</button>
+            <button class="btn btn-primary" onclick="App.Bookmark(${posts[i]})" style=cursor:pointer;>Bookmark</button>
+          </div>
+        
+        `;
+        // Append newyly created card element to the container
+        post_card.innerHTML += content;
+        posts_div.appendChild(post_card);
+      }
+    },
+
+    // All the posts this user (with #id) has upvoted
+    ShowUpvoted: async function() {
+      await $.getJSON("User.json", function(user) {
+        App.contracts.User = TruffleContract(user);
+        App.contracts.User.setProvider(App.web3Provider);
+        App.contracts.User.deployed().then(function(i){App.userInstance=i;})
+      });
+      await $.getJSON("Post.json", function(post) {
+        App.contracts.Post = TruffleContract(post);
+        App.contracts.Post.setProvider(App.web3Provider);
+      });
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+      let postInstance1 = await App.contracts.Post.deployed();
+      App.postInstance = postInstance1;
+      var value = parseInt(window.location.hash.slice(1));
+      App.userid = value;
+
+      document.getElementById("Upvoted_btn").style.backgroundColor = "#d6cbd3";
+      document.getElementById("Followers_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Bookmarked_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Post_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Following_btn").style.backgroundColor = "#ffffff";
+      // We have the user object
+      let user = await App.userInstance.getUpvotedPosts.call(value);
+      // getting bookmarked the posts
+      //-----------------------------
+      document.getElementById("posts").innerHTML="";
+      var posts_div = document.getElementById("posts");
+      var posts = user[0];
+      for(var i=posts.length-1;i>=0;i--)
+      {
+        let currentuserid = await App.userInstance.getidxFromAddress(App.account);
+        let check = await App.userInstance.CheckBookmark.call(currentuserid, posts[i]);
+        let post_info = await App.postInstance.getPostInfo.call(posts[i]);
+        var datetemp = new Date(post_info[2]*1000);
+        var date = 
+                  datetemp.toLocaleString('default', { month: 'long' })+" "+
+                  datetemp.getDate()+" '"+
+                  datetemp.getFullYear()+"  at "+
+                  datetemp.getHours()+":"+
+                  datetemp.getMinutes();
+        var upvotes = post_info[4];
+        var post_card = document.createElement('div');
+        post_card.classList = 'card mt-2';
+        if(check==1)
+        {
           
-          `;
-          }
-          else
-          {
-            var content = `
-            <div class="card-header" style=height:60px;>
-              <h5 >${post_info[0]}</h5>
-              
-            </div>
-            <div class="card-body">
-              <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
-              
-            </div>
-            <div class="card-footer text-muted">
-              <div style=float:left;>${date}</div>
-              
-              <div style=float:right;>${upvotes}</div>
-              <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
-            </div>
-            <div class="card-footer">
-              <button class="btn btn-primary" onclick="App.Upvote(${posts[i]})" style=cursor:pointer;>Upvote</button>
-              <button class="btn btn-primary" onclick="App.Bookmark(${posts[i]})" style=cursor:pointer;>Bookmark</button>
-            </div>
-          
-          `;
-          }
-          
-          // Append newyly created card element to the container
-          post_card.innerHTML += content;
-          posts_div.appendChild(post_card);
+          var content = `
+          <div class="card-header" style=height:60px;>
+            <h5 >${post_info[0]}</h5>
+            <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
+          </div>
+          <div class="card-body">
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
+            
+          </div>
+          <div class="card-footer text-muted">
+            <div style=float:left;>${date}</div>
+            
+            <div style=float:right;>${upvotes}</div>
+            <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" onclick="App.Upvote(${posts[i]})" style=cursor:pointer;>Upvote</button>
+            <button class="btn btn-primary" onclick="App.Bookmark(${posts[i]})" style=cursor:pointer;>Bookmark</button>
+          </div>
+        
+        `;
         }
+        else
+        {
+          var content = `
+          <div class="card-header" style=height:60px;>
+            <h5 >${post_info[0]}</h5>
+            
+          </div>
+          <div class="card-body">
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
+            
+          </div>
+          <div class="card-footer text-muted">
+            <div style=float:left;>${date}</div>
+            
+            <div style=float:right;>${upvotes}</div>
+            <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" onclick="App.Upvote(${posts[i]})" style=cursor:pointer;>Upvote</button>
+            <button class="btn btn-primary" onclick="App.Bookmark(${posts[i]})" style=cursor:pointer;>Bookmark</button>
+          </div>
+        
+        `;
+        
+        }        
+        post_card.innerHTML += content;
+        posts_div.appendChild(post_card);
+      }
+    },
+
+    // All the users this user (with #id) is being Followed by.
+    ShowFollowers: async function() {
+      await $.getJSON("User.json", function(user) {
+        App.contracts.User = TruffleContract(user);
+        App.contracts.User.setProvider(App.web3Provider);
+        App.contracts.User.deployed().then(function(i){App.userInstance=i;})
+      });
+      await $.getJSON("Post.json", function(post) {
+        App.contracts.Post = TruffleContract(post);
+        App.contracts.Post.setProvider(App.web3Provider);
+      });
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+      let postInstance1 = await App.contracts.Post.deployed();
+      App.postInstance = postInstance1;
+
+      var value = parseInt(window.location.hash.slice(1));
+      App.userid = value;
+
+      // We have the user object
+      let user = await App.userInstance.getUserInfo.call(value);
+      // setting the name
+      // document.getElementById('name').innerHTML = user[0];  
+      document.getElementById("posts").innerHTML="";
+      document.getElementById("Upvoted_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Followers_btn").style.backgroundColor = "#d6cbd3";
+      document.getElementById("Bookmarked_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Post_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Following_btn").style.backgroundColor = "#ffffff";
+      
+      //------------------------------------------------
+      // getting all the followers
+      // var followers_div =  document.getElementById("Followers");
+      var followers = user[4];
+      // var br;
+      for(var i=0;i<followers.length;i++)
+      {
+        let follower_info = await App.userInstance.getUserInfo.call(followers[i]);
+        var post_card = document.createElement('div');
+        post_card.classList = 'card mt-2';
+        var content = `
+          <div class="card-header" style=height:60px;>
+            <h5 onclick="App.GoToUserFromOtherUser(${follower_info[2]})" style=cursor:pointer;>${follower_info[0]}</h5>
+            
+          </div>
+          <div class="card-body">
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${follower_info[1]}</p>
+            
+          </div>
+        `;
+        post_card.innerHTML += content;
+        posts_div.appendChild(post_card);
+      }
+    },
+
+    // All the users this user (with #id) is Following.
+    ShowFollowing: async function() {
+      await $.getJSON("User.json", function(user) {
+        App.contracts.User = TruffleContract(user);
+        App.contracts.User.setProvider(App.web3Provider);
+        App.contracts.User.deployed().then(function(i){App.userInstance=i;})
+      });
+      await $.getJSON("Post.json", function(post) {
+        App.contracts.Post = TruffleContract(post);
+        App.contracts.Post.setProvider(App.web3Provider);
+      });
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+      let postInstance1 = await App.contracts.Post.deployed();
+      App.postInstance = postInstance1;
+
+      var value = parseInt(window.location.hash.slice(1));
+      App.userid = value;
+
+      // We have the user object
+      let user = await App.userInstance.getUserInfo.call(value);
+      // setting the name
+      // document.getElementById('name').innerHTML = user[0];  
+      document.getElementById("posts").innerHTML="";
+      document.getElementById("Upvoted_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Followers_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Bookmarked_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Post_btn").style.backgroundColor = "#ffffff";
+      document.getElementById("Following_btn").style.backgroundColor = "#d6cbd3";
+      
+      //------------------------------------------------
+      // getting all the followers
+      var following = user[5];
+      // var br;
+      for(var i=0;i<following.length;i++)
+      {
+        let following_info = await App.userInstance.getUserInfo.call(following[i]);
+        var post_card = document.createElement('div');
+        post_card.classList = 'card mt-2';
+        var content = `
+          <div class="card-header" style=height:60px;>
+            <h5 onclick="App.GoToUserFromOtherUser(${following_info[2]})" style=cursor:pointer;>${following_info[0]}</h5>
+            
+          </div>
+          <div class="card-body">
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${following_info[1]}</p>
+            
+          </div>
+        `;
+        post_card.innerHTML += content;
+        posts_div.appendChild(post_card);
       }
     },
 
@@ -524,9 +687,10 @@ App = {
       else
       {
         let num = await App.postInstance.upvote(value, App.userid);
+        let num = await App.userInstance.UpvotePost(App.userid, value);
         // $("#post").load();
         // $("posts").load(location.href + " posts");
-        $("#posts").load(location.href + " #posts>*", "");
+        // $("#posts").load(location.href + " #posts>*", "");
       }
     },
 

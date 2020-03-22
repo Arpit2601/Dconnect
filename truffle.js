@@ -8,4 +8,10 @@ module.exports = {
       network_id: "*" // Match any network id
     }
   },
+  // solc: {
+  //   optimizer: { // Turning on compiler optimization that removes some local variables during compilation
+  //     enabled: true,
+  //     runs: 200
+  //   }
+  // }
 };

@@ -5,22 +5,20 @@ contract User {
 
     struct userS {
         string Name;
-        uint8 Age;
-        string Gender;
+        string Bio;
         address userid;
         uint index;
-        // string address_string;
-        string ProfilePicHash; // Hash of profilepic
+        // string ProfilePicHash; // Hash of profilepic
         uint[] Posts;
         uint[] Followers;    // Users who are following this user
         uint[] Following;    // This user is following
         uint[] BookmarkedPosts; // Bookmarked posts
-        // bool Isuser;
+        uint[] UpvotedPosts;    // Posts this user has upvoted
     }
 
     //Mappings are useful for O(1) searching 
     mapping(uint => userS) public usersM;
-    mapping(uint => mapping(uint => int)) public followM; // Check if address1 follows address2
+    // mapping(uint => mapping(uint => int)) public followM; // Check if address1 follows address2
 
     // array containing addresses of all the users as you cannot iterate over the mapping
     address[] usersA;
@@ -39,24 +37,23 @@ contract User {
     // }
 
 
-    function getUserInfo(uint idx) public view returns (string memory, uint8, string memory, uint,string memory, uint[] memory, uint[] memory, uint[] memory){
-        // address temp_address = usersA[idx];
+    function getUserInfo(uint idx) public view returns (string memory, string memory, uint, uint[] memory, uint[] memory, uint[] memory, uint[] memory) {
         userS memory u = usersM[idx];
-        return (u.Name, u.Age, u.Gender,u.index, u.ProfilePicHash, u.Posts, u.Followers, u.Following);
+        return (u.Name, u.Bio, u.index, u.Posts, u.Followers, u.Following, u.BookmarkedPosts);
     }
 
-    //TODO: check if user already exists
-    function registerUser(string memory _name, uint8 _age, string memory _gender, string memory _ProfilePicHash) public returns (bool){
-        
-        // userS memory u = usersM[msg.sender];
+    function getUpvotedPosts(uint idx) public view returns(uint[] memory)
+    {
+        userS memory u = usersM[idx];
+        return u.UpvotedPosts;
+    }
+
+    function registerUser(string memory _name, string memory _bio) public returns (bool){
         bytes memory testname = bytes(_name);
-        bytes memory testgender = bytes(_gender);
-        require(_age > 0 && _age < 200, "Age not correct");
+        // bytes memory testbio = bytes(_bio);
         require(testname.length != 0, "Please enter name");
-        require(testgender.length != 0, "Please enter gender");
-        // require(!userpresent(), "User already present");
-        // string memory address_string = AddresstoString(msg.sender);
-        usersM[total_users] = (userS({Name:_name, Age:_age, Gender:_gender,index:total_users, userid:msg.sender, ProfilePicHash:_ProfilePicHash, Posts:new uint[](0), Followers:new uint[](0), Following:new uint[](0),BookmarkedPosts:new uint[](0)}));
+        // require(testbio.length != 0, "Please enter gender");
+        usersM[total_users] = (userS({Name:_name, Bio:_bio, userid:msg.sender, index:total_users, Posts:new uint[](0), Followers:new uint[](0), Following:new uint[](0), BookmarkedPosts:new uint[](0), UpvotedPosts:new uint[](0)}));
         usersA.push(msg.sender);
         total_users++;
         return true;
@@ -139,6 +136,13 @@ contract User {
         return true;
     }
 
+    // Add postid post to Upvoted post for this user
+    function UpvotePost(uint _userid, uint _postid) public returns(bool)
+    {
+        usersM[_userid].UpvotedPosts.push(_postid);
+        return true;
+    }
+
     // Check if this user has already bookmarked this post
     function CheckBookmark(uint _userid, uint _postid) public view returns(bool)
     {
@@ -180,14 +184,6 @@ contract User {
         }
         return address(iaddr);
     }
-
-
-
-
-
-    // function append(uint[] storage d, uint x) internal{
-    //     d.push(x);
-    // }
 
 
 }
