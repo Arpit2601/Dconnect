@@ -17359,12 +17359,12 @@
     "5777": {
       "events": {},
       "links": {},
-      "address": "0x781A26ECD285b85C2EBC8b97Eb7344D02DE0B9A7",
-      "transactionHash": "0xf45de8fee572579ba9a4c85a31be0d9a05f1d5862a6a10284ab3c75f444ff022"
+      "address": "0x6BdECEffC2ceED415e3fA6d49D4a9dC60F544Bd1",
+      "transactionHash": "0x71e04a22cb6f608b2f82d160a709e81dfbfdffa33eb15bd1de710e2b46b2783f"
     }
   },
   "schemaVersion": "3.0.23",
-  "updatedAt": "2020-03-22T17:25:47.298Z",
+  "updatedAt": "2020-03-23T04:32:01.652Z",
   "networkType": "ethereum",
   "devdoc": {
     "methods": {}

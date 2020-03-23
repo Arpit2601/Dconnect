@@ -8,7 +8,21 @@ the contract
 4) Only change the posts div after upvoting and bookmarking
 
 5) On main page just show all the posts in card form with search and sort by upvotes. For users show a side pane with search functionality.
-6) For user page take ideas from medium.com.
-7) Add time to read to each post.
-8) Edit user profile.
-9) Document all the functions and features.
+6) Edit user profile.
+
+Documentation:
+Suppose you are Account40 and are on page of Account41 then
+    Posts tab will show you all the posts this user has ever posted, Bookmarks will be shown on posts that you (Account40) have bookmarked.
+    Bookmarked tab will show all the posts Account41 user has bookmarked.
+    Upvoted tab will show all the posts Account41 has upvoted.
+    Followers will show Account41's followers.
+    Following will show Account41's following.
+
+Suppose you are Account40 and you are on page of Account40 then
+    Posts will show all of yours posts, Bookmarks on the posts you have bookmarked on yourselves posts.
+    Bookmarked tab will show all the posts you have bookmarked.
+    Upvoted tab will show all the posts you has upvoted.
+    Followers will show you followers.
+    Following will show you following.
+
+Upvotes on all the posts are synchronous wherever the post is shown.

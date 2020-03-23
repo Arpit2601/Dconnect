@@ -67,7 +67,7 @@ App = {
               for(var i=0;i<total_users;i++)
               {
                     App.userInstance.getUserInfo.call(i).then(function(user){
-                      App.userInstance.CheckFollow.call(App.account, user[3]).then(function(Check) {
+                      App.userInstance.CheckFollow.call(App.account, user[2]).then(function(Check) {
                         var name = user[0];
                         var bio = user[1];
                         var value = user[2];
@@ -87,12 +87,12 @@ App = {
               }
             });
             
-            $("#accountAddress").html("Your Account: " + account);
+            // $("#accountAddress").html("Your Account: " + account);
             $('#register-btn').hide();
           }
           else
           {
-            $("#accountAddress").html("Your Account: " + account);
+            // $("#accountAddress").html("Your Account: " + account);
           }
         });
       }
@@ -133,10 +133,10 @@ App = {
       var bio = document.getElementById("bio").value;
       // ipfsHash = "pic";
       let x = await App.userInstance.registerUser(name, bio);
-      if(x)
-      {
+      // if(x)
+      // {
         window.location.replace('index.html');
-      }
+      // }
 
   },
 
@@ -181,6 +181,24 @@ App = {
       window.location.reload();
     },
 
+    // Go to msg.sender's user page
+    GoToYourPage:async function() {
+      await $.getJSON("User.json", function(user) {
+        App.contracts.User = TruffleContract(user);
+        App.contracts.User.setProvider(App.web3Provider);
+        App.contracts.User.deployed().then(function(i){App.userInstance=i;})
+      });
+      await $.getJSON("Post.json", function(post) {
+        App.contracts.Post = TruffleContract(post);
+        App.contracts.Post.setProvider(App.web3Provider);
+      });
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+      let userindex = await App.userInstance.getidxFromAddress.call(App.account);
+      window.location.href = 'user.html#' + (userindex);
+    },
+
     // Get the user index from hash and then display all the information
     GoToUserTemp: async function()
     {
@@ -206,6 +224,7 @@ App = {
       let user = await App.userInstance.getUserInfo.call(value);
       // setting the name
       document.getElementById('name').innerHTML = user[0];  
+      document.getElementById('bio').innerHTML = user[1];
 
       // getting all the posts
       //-----------------------------
@@ -214,6 +233,8 @@ App = {
       for(var i=posts.length-1;i>=0;i--)
       {
         let post_info = await App.postInstance.getPostInfo.call(posts[i]);
+        let user_info = await App.userInstance.getUserInfo.call(post_info[3]);
+        var owner = user_info[0];
         var datetemp = new Date(post_info[2]*1000);
         var date = 
                    datetemp.toLocaleString('default', { month: 'long' })+" "+
@@ -228,11 +249,14 @@ App = {
         // Check if post is bookmarked
         let currentuserid = await App.userInstance.getidxFromAddress(App.account);
         let check = await App.userInstance.CheckBookmark.call(currentuserid, posts[i]);
+        var readtime = Math.ceil(post_info[1].split(' ').length/200);
         if(check==1)
         {
           var content = `
-          <div class="card-header" style=height:60px;>
+          <div class="card-header" style=height:70px;>
             <h5 >${post_info[0]}</h5>
+            <span class="text-muted" style=top:-5;position:relative;>By: ${owner}</span>
+            <span class="text-muted" style=top:-5;position:relative;margin-left:30px;>Read Time: ${readtime}</span>
             <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
           </div>
           <div class="card-body">
@@ -255,9 +279,10 @@ App = {
         else
         {
           var content = `
-          <div class="card-header" style=height:60px;>
+          <div class="card-header" style=height:70px;>
             <h5 >${post_info[0]}</h5>
-            
+            <span class="text-muted" style=top:-5;position:relative;>By: ${owner}</span>
+            <span class="text-muted" style=top:-5;position:relative;margin-left:30px;>Read Time: ${readtime}</span>
           </div>
           <div class="card-body">
             <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
@@ -265,7 +290,7 @@ App = {
           </div>
           <div class="card-footer text-muted">
             <div style=float:left;>${date}</div>
-            
+            <span>Read Time: ${readtime}</span>
             <div style=float:right;>${upvotes}</div>
             <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
           </div>
@@ -321,6 +346,9 @@ App = {
         let currentuserid = await App.userInstance.getidxFromAddress(App.account);
         let check = await App.userInstance.CheckBookmark.call(currentuserid, posts[i]);
         let post_info = await App.postInstance.getPostInfo.call(posts[i]);
+        let user_info = await App.userInstance.getUserInfo.call(post_info[3]);
+        var readtime = Math.ceil(post_info[1].split(' ').length/200);
+        var owner = user_info[0];
         var datetemp = new Date(post_info[2]*1000);
         var date = 
                   datetemp.toLocaleString('default', { month: 'long' })+" "+
@@ -335,8 +363,10 @@ App = {
         {
           
           var content = `
-          <div class="card-header" style=height:60px;>
+          <div class="card-header" style=height:70px;>
             <h5 >${post_info[0]}</h5>
+            <span class="text-muted" style=top:-5;position:relative;>By: ${owner}</span>
+            <span class="text-muted" style=top:-5;position:relative;margin-left:30px;>Read Time: ${readtime}</span>
             <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
           </div>
           <div class="card-body">
@@ -359,9 +389,10 @@ App = {
         else
         {
           var content = `
-          <div class="card-header" style=height:60px;>
+          <div class="card-header" style=height:70px;>
             <h5 >${post_info[0]}</h5>
-            
+            <span class="text-muted" style=top:-5;position:relative;>By: ${owner}</span>
+            <span class="text-muted" style=top:-5;position:relative;margin-left:30px;>Read Time: ${readtime}</span>
           </div>
           <div class="card-body">
             <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
@@ -419,11 +450,10 @@ App = {
       var bookmarked_posts = user[6];
       for(var i=bookmarked_posts.length-1;i>=0;i--)
       {
-        // let currentuserid = await App.userInstance.getidxFromAddress(App.account);
-        // let check = await App.userInstance.CheckBookmark.call(currentuserid, posts[i]);
-        // if(check==1)
-        // {
           let post_info = await App.postInstance.getPostInfo.call(bookmarked_posts[i]);
+          let user_info = await App.userInstance.getUserInfo.call(post_info[3]);
+          var readtime = Math.ceil(post_info[1].split(' ').length/200);
+          var owner = user_info[0];
           var datetemp = new Date(post_info[2]*1000);
           var date = 
                     datetemp.toLocaleString('default', { month: 'long' })+" "+
@@ -435,8 +465,10 @@ App = {
           var post_card = document.createElement('div');
           post_card.classList = 'card mt-2';
           var content = `
-          <div class="card-header" style=height:60px;>
+          <div class="card-header" style=height:70px;>
             <h5 >${post_info[0]}</h5>
+            <span class="text-muted" style=top:-5;position:relative;>By: ${owner}</span>
+            <span class="text-muted" style=top:-5;position:relative;margin-left:30px;>Read Time: ${readtime}</span>
             <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
           </div>
           <div class="card-body">
@@ -491,12 +523,15 @@ App = {
       //-----------------------------
       document.getElementById("posts").innerHTML="";
       var posts_div = document.getElementById("posts");
-      var posts = user[0];
+      var posts = user;
       for(var i=posts.length-1;i>=0;i--)
       {
         let currentuserid = await App.userInstance.getidxFromAddress(App.account);
         let check = await App.userInstance.CheckBookmark.call(currentuserid, posts[i]);
         let post_info = await App.postInstance.getPostInfo.call(posts[i]);
+        let user_info = await App.userInstance.getUserInfo.call(post_info[3]);
+        var readtime = Math.ceil(post_info[1].split(' ').length/200);
+        var owner = user_info[0];
         var datetemp = new Date(post_info[2]*1000);
         var date = 
                   datetemp.toLocaleString('default', { month: 'long' })+" "+
@@ -511,8 +546,10 @@ App = {
         {
           
           var content = `
-          <div class="card-header" style=height:60px;>
+          <div class="card-header" style=height:70px;>
             <h5 >${post_info[0]}</h5>
+            <span class="text-muted" style=top:-5;position:relative;>By: ${owner}</span>
+            <span class="text-muted" style=top:-5;position:relative;margin-left:30px;>Read Time: ${readtime}</span>
             <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
           </div>
           <div class="card-body">
@@ -535,9 +572,10 @@ App = {
         else
         {
           var content = `
-          <div class="card-header" style=height:60px;>
+          <div class="card-header" style=height:70px;>
             <h5 >${post_info[0]}</h5>
-            
+            <span class="text-muted" style=top:-5;position:relative;>By: ${owner}</span>
+            <span class="text-muted" style=top:-5;position:relative;margin-left:30px;>Read Time: ${readtime}</span>
           </div>
           <div class="card-body">
             <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${post_info[1]}</p>
@@ -587,6 +625,7 @@ App = {
       // setting the name
       // document.getElementById('name').innerHTML = user[0];  
       document.getElementById("posts").innerHTML="";
+      var posts_div = document.getElementById("posts");
       document.getElementById("Upvoted_btn").style.backgroundColor = "#ffffff";
       document.getElementById("Followers_btn").style.backgroundColor = "#d6cbd3";
       document.getElementById("Bookmarked_btn").style.backgroundColor = "#ffffff";
@@ -643,6 +682,7 @@ App = {
       // setting the name
       // document.getElementById('name').innerHTML = user[0];  
       document.getElementById("posts").innerHTML="";
+      var posts_div = document.getElementById("posts");
       document.getElementById("Upvoted_btn").style.backgroundColor = "#ffffff";
       document.getElementById("Followers_btn").style.backgroundColor = "#ffffff";
       document.getElementById("Bookmarked_btn").style.backgroundColor = "#ffffff";
@@ -687,7 +727,7 @@ App = {
       else
       {
         let num = await App.postInstance.upvote(value, App.userid);
-        let num = await App.userInstance.UpvotePost(App.userid, value);
+        let num1 = await App.userInstance.UpvotePost(App.userid, value);
         // $("#post").load();
         // $("posts").load(location.href + " posts");
         // $("#posts").load(location.href + " #posts>*", "");
