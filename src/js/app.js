@@ -45,59 +45,159 @@ App = {
     });
   },
 
-  render: function() {
-    var content = $("#content");
-    content.show();
-    // Load account data
-    web3.eth.getCoinbase(function(err, account) {
-      if (err === null) {
-        App.account = account;
-        App.contracts.User.deployed().then(function(instance)
-        {
-          App.userInstance = instance;
-          return instance.userpresent(App.account);
-        }).then(function(x){
-          // if user is already present in contract then directly show its page
-          // Fill up the table
-          if(x)
-          {
-            var Users = $('#Users');
-            Users.empty();
-            App.userInstance.total_users().then(function(total_users){
-              for(var i=0;i<total_users;i++)
-              {
-                    App.userInstance.getUserInfo.call(i).then(function(user){
-                      App.userInstance.CheckFollow.call(App.account, user[2]).then(function(Check) {
-                        var name = user[0];
-                        var bio = user[1];
-                        var value = user[2];
-                        if(Check)
-                        {
-                          var user_row = "<tr><th id = user" + value + " onclick=App.GoToUser('" + value + "') style=cursor:pointer;><u>" + name + "</u></th><td>" + bio + "</td><td>" + "<button class="+"btn btn-primary"+" type="+"button id='" + value +"' value='"+value +"' onclick = App.Follow('" + value + "') disabled>Following</button>" + "</td></tr>";
-                        }
-                        else
-                        {
-                          var user_row = "<tr><th id = user" + value + " onclick=App.GoToUser('" + value + "') style=cursor:pointer;><u>" + name + "</u></th><td>" + bio + "</td><td>" + "<button class="+"btn btn-primary"+" type="+"button id='" + value +"' value='"+value +"' onclick = App.Follow('" + value + "')>Follow</button>" + "</td></tr>";
-                          
-                        }
-                        Users.append(user_row);
-                        
-                      });                      
-                    });
-              }
-            });
-            
-            // $("#accountAddress").html("Your Account: " + account);
-            $('#register-btn').hide();
-          }
-          else
-          {
-            // $("#accountAddress").html("Your Account: " + account);
-          }
-        });
-      }
+  render:async function() {
+    await $.getJSON("User.json", function(user) {
+      App.contracts.User = TruffleContract(user);
+      App.contracts.User.setProvider(App.web3Provider);
+      App.contracts.User.deployed().then(function(i){App.userInstance=i;})
     });
+    await $.getJSON("Post.json", function(post) {
+      App.contracts.Post = TruffleContract(post);
+      App.contracts.Post.setProvider(App.web3Provider);
+    });
+    let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+    let userInstance1 = await App.contracts.User.deployed();
+    App.userInstance = userInstance1;
+    let postInstance1 = await App.contracts.Post.deployed();
+    App.postInstance = postInstance1;
 
+    let check_user = await App.userInstance.userpresent(App.account);
+    if(check_user)
+    {
+      let total_users = await App.userInstance.total_users();
+      for(var i=0;i<total_users;i++)
+      {
+        let user = await App.userInstance.getUserInfo.call(i);
+        let check_follow = await App.userInstance.CheckFollow.call(App.account, user[2]);
+        var name = user[0];
+        var bio = user[1];
+        var value = user[2];
+        var user_div = document.getElementById("users");
+        var post_card = document.createElement('div');
+        post_card.classList = 'card mt-2';
+        post_card.style.width = "250px";
+        post_card.style.margin = "5px";
+        post_card.style.border = "black solid 0.1em";
+        if(check_follow)
+        {
+          var content =`
+          <div class="card-header" style="margin:5px;">
+          <h4 onclick="App.GoToUser(${value})" style=cursor:pointer;text-decoration: underline;><b><u>${name}</u></b></h4>  
+          </div>
+          <div class="card-body" style="margin:5px;>
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${bio}</p>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-primary" onclick="App.Follow(${value})" style=cursor:pointer;margin:5px; disabled>Following</button>
+          </div>
+          `;
+        }
+        else
+        {
+          var content =`
+          <div class="card-header" style="margin:5px;">
+          <h4 onclick="App.GoToUser(${value})" style=cursor:pointer;><b><u>${name}</u></b></h4>
+          </div>
+          <div class="card-body" style="margin:5px;>
+            <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${bio}</p>
+          </div>
+          <div class="card-footer" >
+            <button class="btn btn-primary" onclick="App.Follow(${value})" style=cursor:pointer;margin:5px;>Follow</button>
+          </div>
+          `;                          
+        }
+        post_card.innerHTML+=content;
+        user_div.appendChild(post_card);  
+      }
+      $('#register-btn').hide();
+    }
+
+    // Show all the posts
+    // console.log(document.getElementById("posts").offsetWidth);
+    // document.getElementById("posts").innerHTML = "";
+    
+    var posts_div1= document.getElementById("card1");
+    var posts_div2= document.getElementById("card2");
+    var posts_div3= document.getElementById("card3");
+    
+    let total_posts = await App.postInstance.total_posts();
+    var count=0;
+    for(var i=total_posts-1;i>=0;i--)
+    {
+      let post_info = await App.postInstance.getPostInfo.call(i);
+      let user_info = await App.userInstance.getUserInfo.call(post_info[3]);
+      var ownerid = user_info[2];
+      var owner = user_info[0];
+      var datetemp = new Date(post_info[2]*1000);
+      var date = 
+                  datetemp.toLocaleString('default', { month: 'long' })+" "+
+                  datetemp.getDate()+" '"+
+                  datetemp.getFullYear()+"  at "+
+                  datetemp.getHours()+":"+
+                  datetemp.getMinutes();
+      var upvotes = post_info[4];
+      var post_card = document.createElement('div');
+      post_card.classList = 'card ';
+      post_card.style.width = "500px";
+      post_card.style.height = "150px";
+      post_card.style.marginRight = "10px";
+      post_card.style.marginBottom = "60px";
+      post_card.style.border = "black solid 0.1em";
+      post_card.style.borderBottom = "none";
+      // Check if post is bookmarked
+      let currentuserid = await App.userInstance.getidxFromAddress(App.account);
+      let check = await App.userInstance.CheckBookmark.call(currentuserid, i);
+      var readtime = Math.ceil(post_info[1].split(' ').length/200);
+      if(check==1)
+      {
+        var content = `
+        <div class="card-header">
+          <h6 onclick="App.GoToUser(${ownerid})" style=cursor:pointer;text-decoration:underline;>${post_info[0]}</h6>
+          <span class="text-muted" style=top:-5;position:relative;>By: ${owner}</span>
+          <span class="text-muted" style=top:-5;position:relative;margin-left:30px;>Read Time: ${readtime}</span>
+          <img src="images/bookmark.png" style=float:right;height:50px;top:-45px;position:relative;>
+        </div>
+        <div class="card-body">
+          <p class="card-text">${post_info[1]}</p>
+          
+        </div>
+        <div class="card-footer text-muted" style="height:40px;margin-top:8px;border:0.1em solid black; border-top:none;width:500px;margin-left:-1.5px;">
+          <div style=float:left;>${date}</div>
+          <div style=float:right;>${upvotes}</div>
+          <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
+        </div>
+
+      
+      `;
+      }
+      else
+      {
+        var content = `
+        <div class="card-header">
+          <h6 onclick="App.GoToUser(${ownerid})" style=cursor:pointer;text-decoration:underline;>${post_info[0]}</h6>
+          <span class="text-muted" style=top:-5;position:relative;>By: ${owner}</span>
+          <span class="text-muted" style=top:-5;position:relative;margin-left:30px;>Read Time: ${readtime}</span>
+        </div>
+        <div class="card-body">
+          <p class="card-text" style="overflow:hidden;text-overflow: ellipsis;white-space: nowrap;">${post_info[1]}</p>
+        </div>
+        <div class="card-footer text-muted" style="height:40px;margin-top:8px;border:0.1em solid black; border-top:none;width:500px;margin-left:-1.5px;">
+          <div style=float:left;>${date}</div>
+          <div style=float:right;>${upvotes}</div>
+          <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
+        </div>
+        
+      
+      `;
+      }
+      post_card.innerHTML += content;
+      // Append newyly created card element to the container
+      if(count%3==0){posts_div1.appendChild(post_card);}
+      if(count%3==1){posts_div2.appendChild(post_card);}
+      if(count%3==2){posts_div3.appendChild(post_card);}
+      count++;
+      // posts_div.appendChild(post_card);
+    }
 
   },
   
@@ -166,6 +266,12 @@ App = {
         }
       }
     },
+
+    // Go home from user page
+    GoHome: async function()
+    {
+      window.location.href = 'index.html';
+    },
     
     // Go to new page and add user index as hash value in url
     GoToUser: async function(value)
@@ -217,9 +323,15 @@ App = {
       let postInstance1 = await App.contracts.Post.deployed();
       App.postInstance = postInstance1;
 
+      let logged_userid = await App.userInstance.getidxFromAddress(App.account);
       var value = parseInt(window.location.hash.slice(1));
       App.userid = value;
 
+      // Show add post button only if hash in url is that of logged in account
+      if(App.userid!=logged_userid)
+      {
+        document.getElementById("post-btn").style.visibility = 'hidden';
+      }
       // We have the user object
       let user = await App.userInstance.getUserInfo.call(value);
       // setting the name
@@ -290,7 +402,7 @@ App = {
           </div>
           <div class="card-footer text-muted">
             <div style=float:left;>${date}</div>
-            <span>Read Time: ${readtime}</span>
+            
             <div style=float:right;>${upvotes}</div>
             <img src="images/upvote.png" style=float:right;height:40px;top:-10px;position:relative;>
           </div>
@@ -790,10 +902,95 @@ App = {
       let check = await App.userInstance.addPost(user_idx, postid);
       if(check)
       {
-        window.location = 'index.html';
+        window.location.href = 'user.html#' + (user_idx);
       }      
+    },
 
-    }
+    SearchUser: async function (params) 
+    {
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+
+      // Get the names of all the users present in database and then search for substring among them
+      var string_to_search = document.getElementById("name").value;
+      var valid_indices = [];
+      let total_users = await App.userInstance.total_users();
+      // console.log(total_users);
+      for(var i=0;i<total_users;i++)
+      {
+        let user_info = await App.userInstance.getUserInfo.call(i);
+        var name = user_info[0];
+        name = name.toLowerCase();
+        // console.log(name);
+        if(name.includes(string_to_search))
+        {
+          valid_indices.push(user_info[2]);
+        }
+      }
+      // console.log(valid_indices[0], valid_indices.length);
+      if(valid_indices.length==0)
+      {
+        document.getElementById("users").innerHTML = "";
+        var elem = document.createElement('div');
+        var content = '<p style=margin:5px;>No such user present!</p>'
+        
+        elem.innerHTML = content;
+        document.getElementById("users").appendChild(elem);
+        // document.getElementById("users").innerHTML = `<p>No such user present!</p>`;
+      }
+      else
+      {
+        // Show only users present in valid_indices array
+        var user_div = document.getElementById("users");
+        user_div.innerHTML = "";
+        for(var i=0;i<valid_indices.length;i++)
+        {
+          let user = await App.userInstance.getUserInfo.call(valid_indices[i]);
+          let check_follow = await App.userInstance.CheckFollow.call(App.account, user[2]);
+          var name = user[0];
+          var bio = user[1];
+          var value = user[2];
+          
+          var post_card = document.createElement('div');
+          post_card.classList = 'card mt-2';
+          post_card.style.width = "250px";
+          post_card.style.margin = "5px";
+          post_card.style.border = "black solid 0.1em";
+          if(check_follow)
+          {
+            var content =`
+            <div class="card-header" style="margin:5px;">
+            <h4 onclick="App.GoToUser(${value})" style=cursor:pointer;text-decoration: underline;><b><u>${name}</u></b></h4>  
+            </div>
+            <div class="card-body" style="margin:5px;>
+              <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${bio}</p>
+            </div>
+            <div class="card-footer">
+              <button class="btn btn-primary" onclick="App.Follow(${value})" style=cursor:pointer;margin:5px; disabled>Following</button>
+            </div>
+            `;
+          }
+          else
+          {
+            var content =`
+            <div class="card-header" style="margin:5px;">
+            <h4 onclick="App.GoToUser(${value})" style=cursor:pointer;><b><u>${name}</u></b></h4>
+            </div>
+            <div class="card-body" style="margin:5px;>
+              <p class="card-text" style="word-wrap: break-word;white-space:pre-wrap">${bio}</p>
+            </div>
+            <div class="card-footer" >
+              <button class="btn btn-primary" onclick="App.Follow(${value})" style=cursor:pointer;margin:5px;>Follow</button>
+            </div>
+            `;                          
+          }
+          post_card.innerHTML+=content;
+          user_div.appendChild(post_card);  
+        }
+      }
+      
+    },
 };
 
 $(function() {

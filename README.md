@@ -9,6 +9,10 @@ the contract
 
 5) On main page just show all the posts in card form with search and sort by upvotes. For users show a side pane with search functionality.
 6) Edit user profile.
+7) Uncaught (in promise) TypeError: Cannot read property 'appendChild' of null
+   at Object.render (app.js:110)
+   When going to user page from users div in main page.
+8) Align card footer with its body.
 
 Documentation:
 Suppose you are Account40 and are on page of Account41 then
