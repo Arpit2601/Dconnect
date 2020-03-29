@@ -5,33 +5,33 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>Post-Dconnect</title>
+    <title>Edit-Profile</title>
 
     <!-- Bootstrap -->
     <!-- <link href="../css/bootstrap.min.css" rel="stylesheet"> -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
   </head>
-  <body>
+  <body onload="App.EditPageRender()">
+    
     <div class="header" style="margin-top: 20px;height: 40px;">
-      <h2 style="float: left;margin-left: 20px;">Dconnect</h2>
-      <!-- <button class="btn btn-primary" type="submit" id="post-btn" onclick="App.Post()" style="float: right;margin-right: 100px;">New Post</button> -->
-      <!-- <button class="btn btn-primary" type="submit" id="profile-btn" onclick="App.GoToYourPage()" style="float: right;margin-right: 20px;">Profile</button> -->
-      <!-- <button class="btn btn-primary" type="submit" id="register-btn" onclick="App.Register()" style="float: right;margin-right: 20px;">Register</button> -->
-      
+        <h2 style="float: left;margin-left: 20px;">Dconnect</h2>
+        <!-- <button class="btn btn-primary" type="submit" id="post-btn" onclick="App.Post()" style="float: right;margin-right: 100px;">New Post</button> -->
+        <!-- <button class="btn btn-primary" type="submit" id="profile-btn" onclick="App.GoToYourPage()" style="float: right;margin-right: 20px;">Profile</button> -->
+        <!-- <button class="btn btn-primary" type="submit" id="register-btn" onclick="App.Register()" style="float: right;margin-right: 20px;">Register</button> -->
+        
     </div>
     <hr>
-    <form style="margin: 20px;">
+    <form style="margin:20px;">
         <div class="form-group">
-            <label for="title">Title</label>
-            <input type="text" class="form-control" id="title"  placeholder="Enter the title of post">
-
-            <label for="text">Description</label>
-            <textarea id="text" cols="75" rows="10" class="form-control"></textarea>
+            <label for="Name">Name</label>
+            <input type="text" class="form-control" id="name">
+            <label for="Bio">Bio</label>
+            <input type="text" class="form-control" id="bio">
         </div>
         
         
-        <button type="button" class="btn btn-primary" onclick="App.CreatePost()">Submit</button>
+        <button id="edit_profile-btn" type="button" class="btn btn-primary" onclick="App.EditProfileTemp()">Submit</button>
       </form>
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

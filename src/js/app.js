@@ -331,6 +331,7 @@ App = {
       if(App.userid!=logged_userid)
       {
         document.getElementById("post-btn").style.visibility = 'hidden';
+        document.getElementById("edit-btn").style.visibility = 'hidden';
       }
       // We have the user object
       let user = await App.userInstance.getUserInfo.call(value);
@@ -904,6 +905,50 @@ App = {
       {
         window.location.href = 'user.html#' + (user_idx);
       }      
+    },
+
+    EditProfile: async function() {
+      var value = parseInt(window.location.hash.slice(1));
+      window.location.href = 'editprofile.html#' + value; 
+
+    },
+
+    EditPageRender: async function() {
+      await $.getJSON("User.json", function(user) {
+        App.contracts.User = TruffleContract(user);
+        App.contracts.User.setProvider(App.web3Provider);
+        App.contracts.User.deployed().then(function(i){App.userInstance=i;})
+      });
+      await $.getJSON("Post.json", function(post) {
+        App.contracts.Post = TruffleContract(post);
+        App.contracts.Post.setProvider(App.web3Provider);
+      });
+      let account1 = await web3.eth.getCoinbase(function(err, account){if(err==null){App.account=account;}})
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance = userInstance1;
+
+      // current user index
+      var value = parseInt(window.location.hash.slice(1));
+      let user = await App.userInstance.getUserInfo.call(value);
+      console.log(value, user[0]);
+      document.getElementById("name").value = user[0];
+      document.getElementById("bio").value = user[1];
+    },
+
+    EditProfileTemp: async function()
+    {
+      let account1 = await web3.eth.getCoinbase(function(err, account){
+        if(err==null){App.account=account;} 
+      })
+  
+      let userInstance1 = await App.contracts.User.deployed();
+      App.userInstance =  userInstance1;
+      var value = parseInt(window.location.hash.slice(1));
+      var name = document.getElementById("name").value;
+      var bio = document.getElementById("bio").value;
+      console.log(value, name, bio);
+      let x = await App.userInstance.EditUser(value, name, bio);
+      if(x){window.location.href = 'user.html#' + value;}
     },
 
     SearchUser: async function (params) 

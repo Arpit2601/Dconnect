@@ -59,6 +59,12 @@ contract User {
         return true;
     }
 
+    function EditUser(uint idx, string memory name, string memory bio) public returns(bool) {
+        usersM[idx].Name = name;
+        usersM[idx].Bio = bio;
+        return true;
+    }
+
     function userpresent(string memory _address) public view returns (bool){
         address add = parseAddr(_address);
         int idx = -1;

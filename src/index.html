@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+
+    <style>
+      ::-webkit-scrollbar {
+    display: none;
+    }
+    </style>
+    
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,7 +36,7 @@
           </div>
 
       </div>
-      <div style="float:left;margin-top: 0px;" >
+      <div style="float:left;margin-top: 0px;height:1000px;overflow-y: scroll;" >
         <input id="name" type="text" placeholder="Name" style="border:0;margin-left: 5px;border-bottom:solid black;outline: 0em;">
         <button type="submit" style="border-style: none;background: none;cursor: pointer;" onclick="App.SearchUser()">Search</button>
         <div id="users">
